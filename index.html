@@ -1,0 +1,3395 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Chéo TikTok</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    color: #222;
+}
+
+header {
+    background: #111;
+    color: white;
+    text-align: center;
+    padding: 25px 15px;
+}
+
+header h1 {
+    margin: 0 0 8px;
+}
+
+header p {
+    margin: 0;
+    opacity: .8;
+}
+
+.container {
+    width: 100%;
+    max-width: 700px;
+    margin: auto;
+    padding: 20px 15px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.08);
+}
+
+input,
+select {
+    width: 100%;
+    padding: 13px;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+}
+
+input:focus,
+select:focus {
+    border-color: #fe2c55;
+}
+
+button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: #fe2c55;
+    color: white;
+}
+
+.btn-secondary {
+    background: #eee;
+    color: #222;
+}
+
+.btn-logout {
+    background: #222;
+    color: white;
+}
+
+.btn-success {
+    background: #16a34a;
+    color: white;
+}
+
+.btn-danger {
+    background: #dc2626;
+    color: white;
+}
+
+.btn-blue {
+    background: #2563eb;
+    color: white;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.message {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    line-height: 1.5;
+}
+
+.error {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.info {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.balance {
+    text-align: center;
+    background: #fef2f2;
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 15px;
+}
+
+.balance-number {
+    font-size: 40px;
+    font-weight: bold;
+    color: #fe2c55;
+}
+
+.profile-info {
+    line-height: 1.8;
+}
+
+.tiktok-card,
+.task-card,
+.link-card {
+    border: 1px solid #eee;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.tiktok-name,
+.task-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.tiktok-link {
+    display: block;
+    margin-top: 8px;
+    color: #fe2c55;
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.task-link {
+    display: block;
+    color: #2563eb;
+    word-break: break-all;
+    margin-top: 8px;
+}
+
+.task-status {
+    margin-top: 8px;
+    font-weight: bold;
+}
+
+.status-active {
+    color: #16a34a;
+}
+
+.status-warning {
+    color: #d97706;
+}
+
+.status-reset {
+    color: #dc2626;
+}
+
+.task-links {
+    margin-top: 10px;
+}
+
+.task-link-row {
+    padding: 12px;
+    border-top: 1px solid #eee;
+}
+
+.task-link-row:first-child {
+    border-top: none;
+}
+
+.task-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.task-actions button {
+    flex: 1;
+    min-width: 120px;
+}
+
+.admin-box {
+    border: 2px solid #111;
+}
+
+.user-row {
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.user-row:last-child {
+    border-bottom: none;
+}
+
+.user-buttons {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.user-buttons button {
+    flex: 1;
+    min-width: 70px;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 20px;
+    color: #777;
+}
+
+.section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.small-btn {
+    width: auto;
+    padding: 8px 12px;
+    margin: 0;
+}
+
+.counter {
+    background: #fef2f2;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.link-input-row {
+    margin-top: 12px;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 10px;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+}
+
+@media(max-width:500px) {
+    .task-actions {
+        flex-direction: column;
+    }
+
+    .task-actions button {
+        width: 100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🎵 Chéo TikTok</h1>
+    <p>Trao đổi lượt chéo cùng cộng đồng</p>
+</header>
+
+<div class="container">
+
+<!-- =========================
+     ĐĂNG NHẬP / ĐĂNG KÝ
+========================= -->
+
+<div id="loginPage" class="card">
+
+    <h2 id="formTitle">🔐 Đăng nhập</h2>
+
+    <div id="registerFields" class="hidden">
+
+        <input
+            id="fullName"
+            type="text"
+            placeholder="Họ và tên"
+        >
+
+        <input
+            id="username"
+            type="text"
+            placeholder="Username"
+        >
+
+    </div>
+
+    <input
+        id="email"
+        type="text"
+        placeholder="Email hoặc Username"
+    >
+
+    <input
+        id="password"
+        type="password"
+        placeholder="Mật khẩu"
+    >
+
+    <button
+        id="submitButton"
+        class="btn-primary"
+        onclick="submitAuth()"
+    >
+        Đăng nhập
+    </button>
+
+    <button
+        class="btn-secondary"
+        onclick="changeAuthMode()"
+    >
+        <span id="changeModeText">
+            Chưa có tài khoản? Đăng ký
+        </span>
+    </button>
+
+    <div id="authMessage"></div>
+
+</div>
+
+
+<!-- =========================
+     TRANG CHÍNH
+========================= -->
+
+<div id="homePage" class="hidden">
+
+<!-- =========================
+     TÀI KHOẢN
+========================= -->
+
+<div class="card">
+
+    <h2>👤 Tài khoản</h2>
+
+    <div class="profile-info">
+
+        <div>
+            Họ và tên:
+            <strong id="accountFullName">
+                Chưa cập nhật
+            </strong>
+        </div>
+
+        <div>
+            Username:
+            <strong id="accountUsername">
+                Chưa cập nhật
+            </strong>
+        </div>
+
+        <div>
+            Email:
+            <strong id="accountEmail">
+                Chưa cập nhật
+            </strong>
+        </div>
+
+    </div>
+
+    <div class="balance">
+
+        <div>
+            🎯 Lượt chéo lại hiện có
+        </div>
+
+        <div
+            id="balanceNumber"
+            class="balance-number"
+        >
+            0
+        </div>
+
+    </div>
+
+    <button
+        class="btn-logout"
+        onclick="logout()"
+    >
+        🚪 Đăng xuất
+    </button>
+
+</div>
+
+
+<!-- =========================
+     TIKTOK
+========================= -->
+
+<div class="card">
+
+    <h2>🎵 Tài khoản TikTok</h2>
+
+    <p>
+        Bạn có thể thêm nhiều tài khoản/link TikTok.
+    </p>
+
+    <input
+        id="tiktokUsername"
+        type="text"
+        placeholder="@username TikTok"
+    >
+
+    <input
+        id="tiktokUrl"
+        type="text"
+        placeholder="www.tiktok.com/@username hoặc https://vt.tiktok.com/..."
+    >
+
+    <button
+        class="btn-primary"
+        onclick="addTikTokAccount()"
+    >
+        ➕ Thêm tài khoản TikTok
+    </button>
+
+    <div id="tiktokMessage"></div>
+
+    <div id="tiktokAccountsList"></div>
+
+</div>
+
+
+<!-- =========================
+     ĐĂNG NHIỆM VỤ
+========================= -->
+
+<div class="card">
+
+    <h2>📝 Đăng nhiệm vụ</h2>
+
+    <div class="counter">
+
+        Lượt chéo lại hiện có:
+
+        <strong id="taskBalance">
+            0
+        </strong>
+
+        <br>
+
+        Bạn phải có ít nhất
+        <strong>1 lượt chéo lại</strong>
+        mới được đăng nhiệm vụ.
+
+    </div>
+
+    <input
+        id="taskTitle"
+        type="text"
+        placeholder="Tên nhiệm vụ"
+    >
+
+    <p>
+        Thêm link TikTok cần người khác chéo.
+        Mỗi link có thể yêu cầu số lượt chéo lại riêng.
+    </p>
+
+    <div id="taskLinkInputs"></div>
+
+    <button
+        class="btn-secondary"
+        onclick="addTaskLinkInput()"
+    >
+        ➕ Thêm link cần chéo
+    </button>
+
+    <button
+        class="btn-primary"
+        onclick="createTask()"
+    >
+        📤 Đăng nhiệm vụ
+    </button>
+
+    <div id="taskMessage"></div>
+
+</div>
+
+
+<!-- =========================
+     NHIỆM VỤ ĐANG CÓ
+========================= -->
+
+<div class="card">
+
+    <div class="section-title">
+
+        <h2>🔄 Nhiệm vụ chéo</h2>
+
+        <button
+            class="btn-secondary small-btn"
+            onclick="loadTasks()"
+        >
+            🔄 Làm mới
+        </button>
+
+    </div>
+
+    <p>
+        Mỗi link TikTok là một nhiệm vụ riêng.
+        Bạn không thể làm lại cùng một link của cùng người trước thời gian quy định.
+    </p>
+
+    <div id="tasksList">
+        Đang tải nhiệm vụ...
+    </div>
+
+</div>
+
+
+<!-- =========================
+     LỊCH SỬ
+========================= -->
+
+<div class="card">
+
+    <h2>📜 Lịch sử chéo của tôi</h2>
+
+    <div id="myAttemptsList">
+        Đang tải...
+    </div>
+
+</div>
+
+
+<!-- =========================
+     NHIỆM VỤ CỦA TÔI
+========================= -->
+
+<div class="card">
+
+    <h2>📋 Nhiệm vụ tôi đã đăng</h2>
+
+    <div id="myTasksList">
+        Đang tải...
+    </div>
+
+</div>
+
+
+<!-- =========================
+     ADMIN
+========================= -->
+
+<div
+    id="adminPage"
+    class="card admin-box hidden"
+>
+
+    <h2>👑 Quản trị Admin</h2>
+
+    <p>
+        Bạn đang sử dụng tài khoản Admin.
+    </p>
+
+    <input
+        id="searchInput"
+        type="text"
+        placeholder="Tìm username..."
+        oninput="searchUsers()"
+    >
+
+    <div id="usersList">
+        Đang tải...
+    </div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   CẤU HÌNH SUPABASE
+===================================================== */
+
+const SUPABASE_URL =
+"https://bnzhspkwkhdymdektmzh.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_B-qTboqeIFCOs5au73gSbw_O-9RzZTo";
+
+const supabaseClient =
+window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+
+/* =====================================================
+   BIẾN
+===================================================== */
+
+let registerMode = false;
+
+let currentUser = null;
+
+let currentProfile = null;
+
+let allUsers = [];
+
+let taskLinkCount = 0;
+
+
+/* =====================================================
+   HIỂN THỊ THÔNG BÁO
+===================================================== */
+
+function showMessage(
+    elementId,
+    text,
+    type = "error"
+) {
+
+    const element =
+        document.getElementById(elementId);
+
+    if (!element) return;
+
+    element.innerHTML =
+        `<div class="message ${type}">
+            ${text}
+        </div>`;
+}
+
+
+/* =====================================================
+   CHUYỂN ĐĂNG NHẬP / ĐĂNG KÝ
+===================================================== */
+
+function changeAuthMode() {
+
+    registerMode = !registerMode;
+
+    const registerFields =
+        document.getElementById(
+            "registerFields"
+        );
+
+    const formTitle =
+        document.getElementById(
+            "formTitle"
+        );
+
+    const submitButton =
+        document.getElementById(
+            "submitButton"
+        );
+
+    const changeModeText =
+        document.getElementById(
+            "changeModeText"
+        );
+
+    const emailInput =
+        document.getElementById(
+            "email"
+        );
+
+    if (registerMode) {
+
+        registerFields.classList.remove(
+            "hidden"
+        );
+
+        formTitle.innerText =
+            "📝 Đăng ký tài khoản";
+
+        submitButton.innerText =
+            "Đăng ký";
+
+        changeModeText.innerText =
+            "Đã có tài khoản? Đăng nhập";
+
+        emailInput.placeholder =
+            "Email";
+
+    } else {
+
+        registerFields.classList.add(
+            "hidden"
+        );
+
+        formTitle.innerText =
+            "🔐 Đăng nhập";
+
+        submitButton.innerText =
+            "Đăng nhập";
+
+        changeModeText.innerText =
+            "Chưa có tài khoản? Đăng ký";
+
+        emailInput.placeholder =
+            "Email hoặc Username";
+    }
+
+    document.getElementById(
+        "authMessage"
+    ).innerHTML = "";
+}
+
+
+/* =====================================================
+   DỊCH LỖI
+===================================================== */
+
+function translateAuthError(error) {
+
+    if (!error) {
+        return "Đã xảy ra lỗi. Vui lòng thử lại.";
+    }
+
+    const message =
+        (
+            error.message ||
+            ""
+        ).toLowerCase();
+
+    if (
+        message.includes(
+            "user already registered"
+        )
+    ) {
+        return "Email này đã được đăng ký.";
+    }
+
+    if (
+        message.includes(
+            "duplicate"
+        )
+    ) {
+        return "Username hoặc Email đã tồn tại.";
+    }
+
+    if (
+        message.includes(
+            "invalid login credentials"
+        )
+    ) {
+        return "Username/Email hoặc mật khẩu không chính xác.";
+    }
+
+    if (
+        message.includes(
+            "invalid email"
+        )
+    ) {
+        return "Địa chỉ email không hợp lệ.";
+    }
+
+    if (
+        message.includes(
+            "password should be at least"
+        )
+    ) {
+        return "Mật khẩu phải có ít nhất 6 ký tự.";
+    }
+
+    if (
+        message.includes(
+            "email not confirmed"
+        )
+    ) {
+        return "Tài khoản chưa được xác nhận email. Hãy kiểm tra cài đặt Email Confirmation trong Supabase.";
+    }
+
+    return error.message ||
+        "Đã xảy ra lỗi.";
+}
+
+
+/* =====================================================
+   ĐĂNG NHẬP / ĐĂNG KÝ
+===================================================== */
+
+async function submitAuth() {
+
+    const loginValue =
+        document
+        .getElementById("email")
+        .value
+        .trim();
+
+    const password =
+        document
+        .getElementById("password")
+        .value;
+
+    if (!loginValue || !password) {
+
+        showMessage(
+            "authMessage",
+            "Vui lòng nhập đầy đủ thông tin.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (
+        password.length < 6
+    ) {
+
+        showMessage(
+            "authMessage",
+            "Mật khẩu phải có ít nhất 6 ký tự.",
+            "error"
+        );
+
+        return;
+    }
+
+    showMessage(
+        "authMessage",
+        "Đang xử lý...",
+        "info"
+    );
+
+
+    /* =========================
+       ĐĂNG KÝ
+    ========================= */
+
+    if (registerMode) {
+
+        const fullName =
+            document
+            .getElementById(
+                "fullName"
+            )
+            .value
+            .trim();
+
+        const username =
+            document
+            .getElementById(
+                "username"
+            )
+            .value
+            .trim()
+            .toLowerCase();
+
+        const email =
+            loginValue
+            .toLowerCase();
+
+
+        if (
+            !fullName ||
+            !username ||
+            !email ||
+            !password
+        ) {
+
+            showMessage(
+                "authMessage",
+                "Vui lòng nhập Họ và tên, Username, Email và Mật khẩu.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        /* KIỂM TRA USERNAME */
+
+        const usernameCheck =
+            await supabaseClient
+            .from("profiles")
+            .select("id")
+            .eq(
+                "username",
+                username
+            )
+            .maybeSingle();
+
+        if (
+            usernameCheck.error &&
+            !usernameCheck.error.message
+            .toLowerCase()
+            .includes("no rows")
+        ) {
+
+            console.error(
+                usernameCheck.error
+            );
+        }
+
+        if (
+            usernameCheck.data
+        ) {
+
+            showMessage(
+                "authMessage",
+                "Username này đã được sử dụng.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        /* ĐĂNG KÝ AUTH */
+
+        const result =
+            await supabaseClient
+            .auth
+            .signUp({
+
+                email:
+                    email,
+
+                password:
+                    password,
+
+                options: {
+
+                    data: {
+
+                        full_name:
+                            fullName,
+
+                        username:
+                            username
+
+                    }
+
+                }
+
+            });
+
+
+        if (
+            result.error
+        ) {
+
+            showMessage(
+                "authMessage",
+                translateAuthError(
+                    result.error
+                ),
+                "error"
+            );
+
+            return;
+        }
+
+
+        /*
+        Nếu Email Confirmation đã tắt,
+        Supabase thường trả session.
+        */
+
+        if (
+            result.data.user
+        ) {
+
+            /*
+            Cố gắng cập nhật profile.
+            Nếu trigger đã tự tạo profile
+            thì update sẽ cập nhật dữ liệu.
+            */
+
+            const profileUpdate =
+                await supabaseClient
+                .from("profiles")
+                .update({
+
+                    full_name:
+                        fullName,
+
+                    username:
+                        username
+
+                })
+                .eq(
+                    "id",
+                    result.data.user.id
+                );
+
+
+            /*
+            Nếu profile chưa được trigger tạo,
+            thử insert.
+            */
+
+            if (
+                profileUpdate.error
+            ) {
+
+                await supabaseClient
+                .from("profiles")
+                .insert({
+
+                    id:
+                        result.data.user.id,
+
+                    full_name:
+                        fullName,
+
+                    username:
+                        username,
+
+                    cheo_balance:
+                        0
+
+                });
+
+            }
+
+        }
+
+
+        showMessage(
+            "authMessage",
+            "✅ Đăng ký thành công! Bạn có thể đăng nhập ngay.",
+            "success"
+        );
+
+        document
+        .getElementById("fullName")
+        .value = "";
+
+        document
+        .getElementById("username")
+        .value = "";
+
+        document
+        .getElementById("email")
+        .value = "";
+
+        document
+        .getElementById("password")
+        .value = "";
+
+        return;
+    }
+
+
+    /* =========================
+       ĐĂNG NHẬP
+    ========================= */
+
+    let emailToLogin =
+        loginValue;
+
+
+    /*
+    Nếu người dùng nhập username,
+    tìm email trong profiles.
+    */
+
+    if (
+        !loginValue.includes("@")
+    ) {
+
+        const profileResult =
+            await supabaseClient
+            .from("profiles")
+            .select("id")
+            .eq(
+                "username",
+                loginValue.toLowerCase()
+            )
+            .maybeSingle();
+
+
+        if (
+            profileResult.error
+        ) {
+
+            showMessage(
+                "authMessage",
+                "Không thể tìm Username. " +
+                profileResult.error.message,
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (
+            !profileResult.data
+        ) {
+
+            showMessage(
+                "authMessage",
+                "Username không tồn tại.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        /*
+        Không thể lấy email Auth trực tiếp
+        từ profiles nếu profiles chưa có email.
+
+        Thử dùng RPC nếu bạn đã tạo.
+        */
+
+        const emailRpc =
+            await supabaseClient
+            .rpc(
+                "get_email_by_username",
+                {
+                    p_username:
+                        loginValue.toLowerCase()
+                }
+            );
+
+
+        if (
+            emailRpc.error ||
+            !emailRpc.data
+        ) {
+
+            showMessage(
+                "authMessage",
+                "Username tồn tại nhưng hệ thống chưa có chức năng tìm Email từ Username. Hãy đăng nhập bằng Email hoặc báo mình lỗi này để mình viết SQL bổ sung.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        emailToLogin =
+            emailRpc.data;
+    }
+
+
+    const result =
+        await supabaseClient
+        .auth
+        .signInWithPassword({
+
+            email:
+                emailToLogin,
+
+            password:
+                password
+
+        });
+
+
+    if (
+        result.error
+    ) {
+
+        showMessage(
+            "authMessage",
+            translateAuthError(
+                result.error
+            ),
+            "error"
+        );
+
+        return;
+    }
+
+
+    await loadWebsite();
+}
+
+
+/* =====================================================
+   TẢI WEBSITE
+===================================================== */
+
+async function loadWebsite() {
+
+    const result =
+        await supabaseClient
+        .auth
+        .getUser();
+
+    if (
+        result.error ||
+        !result.data.user
+    ) {
+
+        return;
+    }
+
+    currentUser =
+        result.data.user;
+
+
+    document
+    .getElementById(
+        "loginPage"
+    )
+    .classList
+    .add("hidden");
+
+
+    document
+    .getElementById(
+        "homePage"
+    )
+    .classList
+    .remove("hidden");
+
+
+    await loadProfile(
+        currentUser.id
+    );
+
+    await loadTikTokAccounts();
+
+    await loadTasks();
+
+    await loadMyTasks();
+
+    await loadMyAttempts();
+
+}
+
+
+/* =====================================================
+   TẢI PROFILE
+===================================================== */
+
+async function loadProfile(
+    userId
+) {
+
+    const result =
+        await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq(
+            "id",
+            userId
+        )
+        .single();
+
+
+    if (
+        result.error
+    ) {
+
+        console.error(
+            "Profile error:",
+            result.error
+        );
+
+        return;
+    }
+
+
+    currentProfile =
+        result.data;
+
+
+    document
+    .getElementById(
+        "accountFullName"
+    )
+    .innerText =
+        currentProfile.full_name ||
+        "Chưa cập nhật";
+
+
+    document
+    .getElementById(
+        "accountUsername"
+    )
+    .innerText =
+        currentProfile.username ||
+        "Chưa cập nhật";
+
+
+    document
+    .getElementById(
+        "accountEmail"
+    )
+    .innerText =
+        currentUser.email ||
+        "Chưa cập nhật";
+
+
+    const balance =
+        Number(
+            currentProfile.cheo_balance ||
+            0
+        );
+
+
+    document
+    .getElementById(
+        "balanceNumber"
+    )
+    .innerText =
+        balance;
+
+
+    document
+    .getElementById(
+        "taskBalance"
+    )
+    .innerText =
+        balance;
+
+
+    if (
+        currentProfile.is_admin === true
+    ) {
+
+        document
+        .getElementById(
+            "adminPage"
+        )
+        .classList
+        .remove("hidden");
+
+        await loadUsers();
+
+    } else {
+
+        document
+        .getElementById(
+            "adminPage"
+        )
+        .classList
+        .add("hidden");
+
+    }
+
+}
+
+
+/* =====================================================
+   ĐĂNG XUẤT
+===================================================== */
+
+async function logout() {
+
+    const result =
+        await supabaseClient
+        .auth
+        .signOut({
+            scope: "local"
+        });
+
+
+    if (
+        result.error
+    ) {
+
+        alert(
+            "Đăng xuất thất bại: " +
+            result.error.message
+        );
+
+        return;
+    }
+
+
+    currentUser =
+        null;
+
+    currentProfile =
+        null;
+
+
+    document
+    .getElementById(
+        "homePage"
+    )
+    .classList
+    .add("hidden");
+
+
+    document
+    .getElementById(
+        "adminPage"
+    )
+    .classList
+    .add("hidden");
+
+
+    document
+    .getElementById(
+        "loginPage"
+    )
+    .classList
+    .remove("hidden");
+
+
+    document
+    .getElementById(
+        "email"
+    )
+    .value =
+        "";
+
+    document
+    .getElementById(
+        "password"
+    )
+    .value =
+        "";
+
+}
+
+
+/* =====================================================
+   CHUẨN HÓA LINK TIKTOK
+===================================================== */
+
+function normalizeTikTokUrl(
+    url
+) {
+
+    url =
+        url.trim();
+
+
+    if (!url) {
+        return "";
+    }
+
+
+    if (
+        !url.startsWith(
+            "http://"
+        ) &&
+        !url.startsWith(
+            "https://"
+        )
+    ) {
+
+        url =
+            "https://" +
+            url;
+
+    }
+
+
+    return url;
+}
+
+
+/* =====================================================
+   KIỂM TRA LINK TIKTOK
+===================================================== */
+
+function isValidTikTokUrl(
+    url
+) {
+
+    try {
+
+        const parsed =
+            new URL(url);
+
+
+        const hostname =
+            parsed.hostname
+            .toLowerCase();
+
+
+        return (
+
+            hostname ===
+            "tiktok.com"
+
+            ||
+
+            hostname ===
+            "www.tiktok.com"
+
+            ||
+
+            hostname ===
+            "m.tiktok.com"
+
+            ||
+
+            hostname ===
+            "vt.tiktok.com"
+
+            ||
+
+            hostname ===
+            "vm.tiktok.com"
+
+        );
+
+    } catch (error) {
+
+        return false;
+
+    }
+
+}
+
+
+/* =====================================================
+   THÊM TÀI KHOẢN TIKTOK
+===================================================== */
+
+async function addTikTokAccount() {
+
+    if (!currentUser) {
+        return;
+    }
+
+
+    let username =
+        document
+        .getElementById(
+            "tiktokUsername"
+        )
+        .value
+        .trim();
+
+
+    let url =
+        document
+        .getElementById(
+            "tiktokUrl"
+        )
+        .value
+        .trim();
+
+
+    if (
+        !username ||
+        !url
+    ) {
+
+        showMessage(
+            "tiktokMessage",
+            "Vui lòng nhập đầy đủ thông tin.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    username =
+        username.replace(
+            /^@+/,
+            ""
+        );
+
+
+    url =
+        normalizeTikTokUrl(
+            url
+        );
+
+
+    if (
+        !isValidTikTokUrl(
+            url
+        )
+    ) {
+
+        showMessage(
+            "tiktokMessage",
+            "Link TikTok không hợp lệ.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const duplicate =
+        await supabaseClient
+        .from("tiktok_accounts")
+        .select("id")
+        .eq(
+            "user_id",
+            currentUser.id
+        )
+        .ilike(
+            "tiktok_username",
+            username
+        )
+        .maybeSingle();
+
+
+    if (
+        duplicate.data
+    ) {
+
+        showMessage(
+            "tiktokMessage",
+            "Tài khoản TikTok này đã tồn tại.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const existing =
+        await supabaseClient
+        .from("tiktok_accounts")
+        .select("id")
+        .eq(
+            "user_id",
+            currentUser.id
+        );
+
+
+    const isFirstAccount =
+        !existing.data ||
+        existing.data.length === 0;
+
+
+    const result =
+        await supabaseClient
+        .from("tiktok_accounts")
+        .insert({
+
+            user_id:
+                currentUser.id,
+
+            tiktok_username:
+                username,
+
+            tiktok_url:
+                url,
+
+            is_selected:
+                isFirstAccount
+
+        });
+
+
+    if (
+        result.error
+    ) {
+
+        showMessage(
+            "tiktokMessage",
+            result.error.message,
+            "error"
+        );
+
+        return;
+    }
+
+
+    showMessage(
+        "tiktokMessage",
+        "✅ Đã thêm tài khoản TikTok thành công.",
+        "success"
+    );
+
+
+    document
+    .getElementById(
+        "tiktokUsername"
+    )
+    .value =
+        "";
+
+    document
+    .getElementById(
+        "tiktokUrl"
+    )
+    .value =
+        "";
+
+
+    await loadTikTokAccounts();
+}
+
+
+/* =====================================================
+   TẢI TÀI KHOẢN TIKTOK
+===================================================== */
+
+async function loadTikTokAccounts() {
+
+    if (!currentUser) {
+        return;
+    }
+
+
+    const list =
+        document
+        .getElementById(
+            "tiktokAccountsList"
+        );
+
+
+    const result =
+        await supabaseClient
+        .from("tiktok_accounts")
+        .select("*")
+        .eq(
+            "user_id",
+            currentUser.id
+        )
+        .order(
+            "created_at",
+            {
+                ascending:
+                    true
+            }
+        );
+
+
+    if (
+        result.error
+    ) {
+
+        list.innerHTML =
+            `<div class="message error">
+                ${result.error.message}
+            </div>`;
+
+        return;
+    }
+
+
+    if (
+        !result.data ||
+        result.data.length === 0
+    ) {
+
+        list.innerHTML =
+            `<div class="empty-message">
+                Bạn chưa thêm tài khoản TikTok nào.
+            </div>`;
+
+        return;
+    }
+
+
+    list.innerHTML =
+        "";
+
+
+    result.data.forEach(
+        account => {
+
+            const card =
+                document
+                .createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "tiktok-card";
+
+
+            card.innerHTML =
+
+                `<div class="tiktok-name">
+                    @${escapeHtml(
+                        account.tiktok_username
+                    )}
+                </div>
+
+                <a
+                    class="tiktok-link"
+                    href="${escapeAttribute(
+                        account.tiktok_url
+                    )}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    ${escapeHtml(
+                        account.tiktok_url
+                    )}
+                </a>
+
+                <div class="task-actions">
+
+                    <button
+                        class="btn-danger"
+                        onclick="deleteTikTokAccount('${account.id}')"
+                    >
+                        🗑️ Xóa
+                    </button>
+
+                </div>`;
+
+
+            list.appendChild(
+                card
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   XÓA TIKTOK
+===================================================== */
+
+async function deleteTikTokAccount(
+    accountId
+) {
+
+    if (
+        !confirm(
+            "Bạn có chắc muốn xóa tài khoản TikTok này?"
+        )
+    ) {
+        return;
+    }
+
+
+    const result =
+        await supabaseClient
+        .from("tiktok_accounts")
+        .delete()
+        .eq(
+            "id",
+            accountId
+        )
+        .eq(
+            "user_id",
+            currentUser.id
+        );
+
+
+    if (
+        result.error
+    ) {
+
+        alert(
+            result.error.message
+        );
+
+        return;
+    }
+
+
+    await loadTikTokAccounts();
+}
+
+
+/* =====================================================
+   THÊM LINK VÀO FORM ĐĂNG NHIỆM VỤ
+===================================================== */
+
+function addTaskLinkInput() {
+
+    taskLinkCount++;
+
+
+    const container =
+        document
+        .getElementById(
+            "taskLinkInputs"
+        );
+
+
+    const row =
+        document
+        .createElement(
+            "div"
+        );
+
+
+    row.className =
+        "link-input-row";
+
+
+    row.id =
+        "taskLinkInput_" +
+        taskLinkCount;
+
+
+    row.innerHTML =
+
+        `<strong>
+            Link ${taskLinkCount}
+        </strong>
+
+        <input
+            type="text"
+            class="task-url-input"
+            placeholder="https://vt.tiktok.com/... hoặc www.tiktok.com/@username"
+        >
+
+        <input
+            type="number"
+            class="task-required-input"
+            min="1"
+            value="1"
+            placeholder="Cần chéo lại bao nhiêu lượt?"
+        >
+
+        <button
+            class="btn-danger"
+            onclick="removeTaskLinkInput(${taskLinkCount})"
+        >
+            Xóa link này
+        </button>`;
+
+
+    container.appendChild(
+        row
+    );
+
+}
+
+
+/* =====================================================
+   XÓA LINK FORM
+===================================================== */
+
+function removeTaskLinkInput(
+    id
+) {
+
+    const element =
+        document
+        .getElementById(
+            "taskLinkInput_" +
+            id
+        );
+
+
+    if (
+        element
+    ) {
+
+        element.remove();
+
+    }
+
+}
+
+
+/* =====================================================
+   ĐĂNG NHIỆM VỤ
+===================================================== */
+
+async function createTask() {
+
+    if (!currentUser) {
+        return;
+    }
+
+
+    const balance =
+        Number(
+            currentProfile?.cheo_balance ||
+            0
+        );
+
+
+    if (
+        balance < 1
+    ) {
+
+        showMessage(
+            "taskMessage",
+            "❌ Bạn phải có ít nhất 1 lượt chéo lại mới được đăng nhiệm vụ.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const title =
+        document
+        .getElementById(
+            "taskTitle"
+        )
+        .value
+        .trim();
+
+
+    const urlInputs =
+        document
+        .querySelectorAll(
+            ".task-url-input"
+        );
+
+
+    const requiredInputs =
+        document
+        .querySelectorAll(
+            ".task-required-input"
+        );
+
+
+    if (
+        urlInputs.length === 0
+    ) {
+
+        showMessage(
+            "taskMessage",
+            "Bạn cần thêm ít nhất 1 link TikTok.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const links = [];
+
+
+    let totalRequired =
+        0;
+
+
+    for (
+        let i = 0;
+        i < urlInputs.length;
+        i++
+    ) {
+
+        let url =
+            urlInputs[i]
+            .value
+            .trim();
+
+
+        const required =
+            Number(
+                requiredInputs[i]
+                .value
+            );
+
+
+        if (!url) {
+
+            showMessage(
+                "taskMessage",
+                `Vui lòng nhập link ở Link ${i + 1}.`,
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (
+            !required ||
+            required < 1
+        ) {
+
+            showMessage(
+                "taskMessage",
+                `Số lượt chéo của Link ${i + 1} phải lớn hơn 0.`,
+                "error"
+            );
+
+            return;
+        }
+
+
+        url =
+            normalizeTikTokUrl(
+                url
+            );
+
+
+        if (
+            !isValidTikTokUrl(
+                url
+            )
+        ) {
+
+            showMessage(
+                "taskMessage",
+                `Link TikTok ở Link ${i + 1} không hợp lệ.`,
+                "error"
+            );
+
+            return;
+        }
+
+
+        totalRequired +=
+            required;
+
+
+        links.push({
+
+            url:
+                url,
+
+            required:
+                required
+
+        });
+
+    }
+
+
+    if (
+        totalRequired >
+        balance
+    ) {
+
+        showMessage(
+            "taskMessage",
+            `Bạn cần ${totalRequired} lượt chéo lại nhưng hiện chỉ có ${balance} lượt.`,
+            "error"
+        );
+
+        return;
+    }
+
+
+    /*
+    Tạo nhiệm vụ.
+
+    Nếu cấu trúc bảng hiện tại khác,
+    Supabase sẽ trả lỗi để xử lý tiếp.
+    */
+
+    const taskResult =
+        await supabaseClient
+        .from("cross_tasks")
+        .insert({
+
+            worker_id:
+                currentUser.id,
+
+            title:
+                title ||
+                "Nhiệm vụ chéo TikTok",
+
+            required_crosses:
+                totalRequired,
+
+            status:
+                "active"
+
+        })
+        .select()
+        .single();
+
+
+    if (
+        taskResult.error
+    ) {
+
+        showMessage(
+            "taskMessage",
+            "Không thể đăng nhiệm vụ: " +
+            taskResult.error.message,
+            "error"
+        );
+
+        return;
+    }
+
+
+    const task =
+        taskResult.data;
+
+
+    /*
+    Thêm từng link.
+    */
+
+    for (
+        const item of links
+    ) {
+
+        const linkResult =
+            await supabaseClient
+            .from(
+                "cross_task_links"
+            )
+            .insert({
+
+                task_id:
+                    task.id,
+
+                tiktok_url:
+                    item.url,
+
+                required_attempts:
+                    item.required,
+
+                completed_attempts:
+                    0,
+
+                status:
+                    "active"
+
+            });
+
+
+        if (
+            linkResult.error
+        ) {
+
+            showMessage(
+                "taskMessage",
+                "Nhiệm vụ đã tạo nhưng không thể thêm link: " +
+                linkResult.error.message,
+                "error"
+            );
+
+            return;
+        }
+
+    }
+
+
+    showMessage(
+        "taskMessage",
+        "✅ Đã đăng nhiệm vụ thành công.",
+        "success"
+    );
+
+
+    document
+    .getElementById(
+        "taskTitle"
+    )
+    .value =
+        "";
+
+    document
+    .getElementById(
+        "taskLinkInputs"
+    )
+    .innerHTML =
+        "";
+
+    taskLinkCount =
+        0;
+
+
+    await loadProfile(
+        currentUser.id
+    );
+
+    await loadTasks();
+
+    await loadMyTasks();
+
+}
+
+
+/* =====================================================
+   TẢI NHIỆM VỤ
+===================================================== */
+
+async function loadTasks() {
+
+    const list =
+        document
+        .getElementById(
+            "tasksList"
+        );
+
+
+    const result =
+        await supabaseClient
+        .from(
+            "cross_task_links"
+        )
+        .select(
+            "*"
+        )
+        .eq(
+            "status",
+            "active"
+        )
+        .order(
+            "created_at",
+            {
+                ascending:
+                    false
+            }
+        );
+
+
+    if (
+        result.error
+    ) {
+
+        list.innerHTML =
+            `<div class="message error">
+                Không thể tải nhiệm vụ:
+                ${escapeHtml(
+                    result.error.message
+                )}
+            </div>`;
+
+        return;
+    }
+
+
+    if (
+        !result.data ||
+        result.data.length === 0
+    ) {
+
+        list.innerHTML =
+            `<div class="empty-message">
+                Hiện chưa có nhiệm vụ nào.
+            </div>`;
+
+        return;
+    }
+
+
+    list.innerHTML =
+        "";
+
+
+    for (
+        const link of result.data
+    ) {
+
+        const taskResult =
+            await supabaseClient
+            .from(
+                "cross_tasks"
+            )
+            .select(
+                "*"
+            )
+            .eq(
+                "id",
+                link.task_id
+            )
+            .maybeSingle();
+
+
+        if (
+            taskResult.error ||
+            !taskResult.data
+        ) {
+            continue;
+        }
+
+
+        const task =
+            taskResult.data;
+
+
+        if (
+            task.worker_id ===
+            currentUser?.id
+        ) {
+            continue;
+        }
+
+
+        const card =
+            document
+            .createElement(
+                "div"
+            );
+
+
+        card.className =
+            "task-card";
+
+
+        const remaining =
+            Math.max(
+                0,
+                Number(
+                    link.required_attempts ||
+                    0
+                ) -
+                Number(
+                    link.completed_attempts ||
+                    0
+                )
+            );
+
+
+        card.innerHTML =
+
+            `<div class="task-title">
+                ${escapeHtml(
+                    task.title ||
+                    "Nhiệm vụ chéo TikTok"
+                )}
+            </div>
+
+            <div class="task-link">
+                ${escapeHtml(
+                    link.tiktok_url
+                )}
+            </div>
+
+            <div class="task-status">
+                Người đăng sẽ nhận lại:
+                <strong>
+                    ${remaining}
+                </strong>
+                lượt
+            </div>
+
+            <div class="task-actions">
+
+                <button
+                    class="btn-primary"
+                    onclick="startCrossTask('${link.id}', '${escapeJs(link.tiktok_url)}')"
+                >
+                    🎵 Nhận nhiệm vụ
+                </button>
+
+            </div>`;
+
+
+        list.appendChild(
+            card
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   NHẬN / BẮT ĐẦU NHIỆM VỤ
+===================================================== */
+
+async function startCrossTask(
+    taskLinkId,
+    url
+) {
+
+    if (!currentUser) {
+        return;
+    }
+
+
+    /*
+    Kiểm tra lịch sử 24h.
+
+    Tạm thời kiểm tra client-side.
+    Function SQL complete_cross_task
+    vẫn là nơi xử lý hoàn thành cuối cùng.
+    */
+
+    const existing =
+        await supabaseClient
+        .from(
+            "cross_tasks_attempts"
+        )
+        .select(
+            "*"
+        )
+        .eq(
+            "worker_id",
+            currentUser.id
+        )
+        .eq(
+            "task_link_id",
+            taskLinkId
+        )
+        .order(
+            "created_at",
+            {
+                ascending:
+                    false
+            }
+        )
+        .limit(1);
+
+
+    if (
+        existing.error
+    ) {
+
+        alert(
+            "Không thể kiểm tra nhiệm vụ: " +
+            existing.error.message
+        );
+
+        return;
+    }
+
+
+    if (
+        existing.data &&
+        existing.data.length > 0
+    ) {
+
+        const last =
+            new Date(
+                existing.data[0]
+                .created_at
+            );
+
+
+        const now =
+            new Date();
+
+
+        const diff =
+            now.getTime() -
+            last.getTime();
+
+
+        const hours =
+            diff /
+            (
+                1000 *
+                60 *
+                60
+            );
+
+
+        if (
+            hours <
+            24
+        ) {
+
+            const remaining =
+                Math.ceil(
+                    24 -
+                    hours
+                );
+
+
+            alert(
+                `Bạn đã làm link này rồi. Vui lòng chờ khoảng ${remaining} giờ nữa để có thể làm lại.`
+            );
+
+            return;
+        }
+
+    }
+
+
+    /*
+    Tạo attempt đang xử lý.
+    */
+
+    const attempt =
+        await supabaseClient
+        .from(
+            "cross_tasks_attempts"
+        )
+        .insert({
+
+            task_link_id:
+                taskLinkId,
+
+            worker_id:
+                currentUser.id,
+
+            status:
+                "started"
+
+        })
+        .select()
+        .single();
+
+
+    if (
+        attempt.error
+    ) {
+
+        alert(
+            "Không thể nhận nhiệm vụ: " +
+            attempt.error.message
+        );
+
+        return;
+    }
+
+
+    /*
+    Mở link TikTok trực tiếp.
+    */
+
+    window.open(
+        url,
+        "_blank"
+    );
+
+
+    /*
+    Xác nhận hoàn thành.
+    */
+
+    setTimeout(
+        async function() {
+
+            const confirmDone =
+                confirm(
+                    "Bạn đã hoàn thành việc chéo TikTok này chưa?"
+                );
+
+
+            if (
+                !confirmDone
+            ) {
+                return;
+            }
+
+
+            await completeCrossTask(
+                attempt.data.id
+            );
+
+        },
+        1500
+    );
+
+}
+
+
+/* =====================================================
+   HOÀN THÀNH NHIỆM VỤ
+===================================================== */
+
+async function completeCrossTask(
+    attemptId
+) {
+
+    /*
+    Dùng function SQL đã tạo trước đó.
+    */
+
+    const result =
+        await supabaseClient
+        .rpc(
+            "complete_cross_task",
+            {
+                target_attempt_id:
+                    attemptId
+            }
+        );
+
+
+    if (
+        result.error
+    ) {
+
+        alert(
+            "Không thể hoàn thành nhiệm vụ: " +
+            result.error.message
+        );
+
+        return;
+    }
+
+
+    alert(
+        "✅ Hoàn thành nhiệm vụ thành công!"
+    );
+
+
+    await loadProfile(
+        currentUser.id
+    );
+
+    await loadTasks();
+
+    await loadMyTasks();
+
+    await loadMyAttempts();
+
+}
+
+
+/* =====================================================
+   LỊCH SỬ CỦA TÔI
+===================================================== */
+
+async function loadMyAttempts() {
+
+    const list =
+        document
+        .getElementById(
+            "myAttemptsList"
+        );
+
+
+    if (!currentUser) {
+        return;
+    }
+
+
+    const result =
+        await supabaseClient
+        .from(
+            "cross_tasks_attempts"
+        )
+        .select(
+            "*"
+        )
+        .eq(
+            "worker_id",
+            currentUser.id
+        )
+        .order(
+            "created_at",
+            {
+                ascending:
+                    false
+            }
+        )
+        .limit(50);
+
+
+    if (
+        result.error
+    ) {
+
+        list.innerHTML =
+            `<div class="message error">
+                ${escapeHtml(
+                    result.error.message
+                )}
+            </div>`;
+
+        return;
+    }
+
+
+    if (
+        !result.data ||
+        result.data.length === 0
+    ) {
+
+        list.innerHTML =
+            `<div class="empty-message">
+                Bạn chưa thực hiện nhiệm vụ nào.
+            </div>`;
+
+        return;
+    }
+
+
+    list.innerHTML =
+        "";
+
+
+    result.data.forEach(
+        attempt => {
+
+            const row =
+                document
+                .createElement(
+                    "div"
+                );
+
+
+            row.className =
+                "task-link-row";
+
+
+            row.innerHTML =
+
+                `Nhiệm vụ:
+                <strong>
+                    ${escapeHtml(
+                        attempt.status ||
+                        "Đang xử lý"
+                    )}
+                </strong>
+
+                <br>
+
+                Thời gian:
+                ${escapeHtml(
+                    attempt.created_at ||
+                    ""
+                )}`;
+
+
+            list.appendChild(
+                row
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   NHIỆM VỤ CỦA TÔI
+===================================================== */
+
+async function loadMyTasks() {
+
+    const list =
+        document
+        .getElementById(
+            "myTasksList"
+        );
+
+
+    if (!currentUser) {
+        return;
+    }
+
+
+    const result =
+        await supabaseClient
+        .from(
+            "cross_tasks"
+        )
+        .select(
+            "*"
+        )
+        .eq(
+            "worker_id",
+            currentUser.id
+        )
+        .order(
+            "created_at",
+            {
+                ascending:
+                    false
+            }
+        );
+
+
+    if (
+        result.error
+    ) {
+
+        list.innerHTML =
+            `<div class="message error">
+                ${escapeHtml(
+                    result.error.message
+                )}
+            </div>`;
+
+        return;
+    }
+
+
+    if (
+        !result.data ||
+        result.data.length === 0
+    ) {
+
+        list.innerHTML =
+            `<div class="empty-message">
+                Bạn chưa đăng nhiệm vụ nào.
+            </div>`;
+
+        return;
+    }
+
+
+    list.innerHTML =
+        "";
+
+
+    result.data.forEach(
+        task => {
+
+            const row =
+                document
+                .createElement(
+                    "div"
+                );
+
+
+            row.className =
+                "task-card";
+
+
+            row.innerHTML =
+
+                `<div class="task-title">
+                    ${escapeHtml(
+                        task.title ||
+                        "Nhiệm vụ"
+                    )}
+                </div>
+
+                <div>
+                    Trạng thái:
+                    <strong>
+                        ${escapeHtml(
+                            task.status ||
+                            ""
+                        )}
+                    </strong>
+                </div>
+
+                <div>
+                    Tổng lượt yêu cầu:
+                    ${Number(
+                        task.required_crosses ||
+                        0
+                    )}
+                </div>`;
+
+
+            list.appendChild(
+                row
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   ADMIN - TẢI USER
+===================================================== */
+
+async function loadUsers() {
+
+    const result =
+        await supabaseClient
+        .from(
+            "profiles"
+        )
+        .select(
+            "*"
+        )
+        .order(
+            "username",
+            {
+                ascending:
+                    true
+            }
+        );
+
+
+    if (
+        result.error
+    ) {
+
+        document
+        .getElementById(
+            "usersList"
+        )
+        .innerHTML =
+
+            `<div class="message error">
+                ${escapeHtml(
+                    result.error.message
+                )}
+            </div>`;
+
+        return;
+    }
+
+
+    allUsers =
+        result.data ||
+        [];
+
+
+    displayUsers(
+        allUsers
+    );
+
+}
+
+
+/* =====================================================
+   HIỂN THỊ USER
+===================================================== */
+
+function displayUsers(
+    users
+) {
+
+    const list =
+        document
+        .getElementById(
+            "usersList"
+        );
+
+
+    list.innerHTML =
+        "";
+
+
+    users.forEach(
+        user => {
+
+            if (
+                user.is_admin === true
+            ) {
+                return;
+            }
+
+
+            const row =
+                document
+                .createElement(
+                    "div"
+                );
+
+
+            row.className =
+                "user-row";
+
+
+            row.innerHTML =
+
+                `<strong>
+                    ${escapeHtml(
+                        user.username ||
+                        "Người dùng"
+                    )}
+                </strong>
+
+                <br>
+
+                Họ tên:
+                ${escapeHtml(
+                    user.full_name ||
+                    ""
+                )}
+
+                <br>
+
+                Lượt chéo:
+                <b>
+                    ${Number(
+                        user.cheo_balance ||
+                        0
+                    )}
+                </b>
+
+                <div class="user-buttons">
+
+                    <button
+                        class="btn-success"
+                        onclick="adjustBalance('${user.id}', 1)"
+                    >
+                        +1
+                    </button>
+
+                    <button
+                        class="btn-success"
+                        onclick="adjustBalance('${user.id}', 5)"
+                    >
+                        +5
+                    </button>
+
+                    <button
+                        class="btn-success"
+                        onclick="adjustBalance('${user.id}', 10)"
+                    >
+                        +10
+                    </button>
+
+                    <button
+                        class="btn-danger"
+                        onclick="adjustBalance('${user.id}', -1)"
+                    >
+                        -1
+                    </button>
+
+                </div>`;
+
+
+            list.appendChild(
+                row
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   TÌM USER
+===================================================== */
+
+function searchUsers() {
+
+    const keyword =
+        document
+        .getElementById(
+            "searchInput"
+        )
+        .value
+        .toLowerCase();
+
+
+    const filtered =
+        allUsers.filter(
+            user => {
+
+                const username =
+                    (
+                        user.username ||
+                        ""
+                    )
+                    .toLowerCase();
+
+
+                const fullName =
+                    (
+                        user.full_name ||
+                        ""
+                    )
+                    .toLowerCase();
+
+
+                return (
+                    username.includes(
+                        keyword
+                    ) ||
+                    fullName.includes(
+                        keyword
+                    )
+                );
+
+            }
+        );
+
+
+    displayUsers(
+        filtered
+    );
+
+}
+
+
+/* =====================================================
+   ADMIN CỘNG / TRỪ LƯỢT
+===================================================== */
+
+async function adjustBalance(
+    userId,
+    amount
+) {
+
+    const result =
+        await supabaseClient
+        .rpc(
+            "admin_adjust_balance",
+            {
+
+                target_user_id:
+                    userId,
+
+                amount:
+                    amount
+
+            }
+        );
+
+
+    if (
+        result.error
+    ) {
+
+        alert(
+            "Lỗi: " +
+            result.error.message
+        );
+
+        return;
+    }
+
+
+    alert(
+        "Đã cập nhật lượt thành công!"
+    );
+
+
+    await loadUsers();
+
+}
+
+
+/* =====================================================
+   SESSION
+===================================================== */
+
+async function checkSession() {
+
+    const result =
+        await supabaseClient
+        .auth
+        .getSession();
+
+
+    if (
+        result.data &&
+        result.data.session
+    ) {
+
+        await loadWebsite();
+
+    }
+
+}
+
+
+checkSession();
+
+
+/* =====================================================
+   THEO DÕI AUTH
+===================================================== */
+
+supabaseClient
+.auth
+.onAuthStateChange(
+    function(
+        event,
+        session
+    ) {
+
+        if (
+            event ===
+            "SIGNED_OUT"
+        ) {
+
+            currentUser =
+                null;
+
+            document
+            .getElementById(
+                "homePage"
+            )
+            .classList
+            .add("hidden");
+
+            document
+            .getElementById(
+                "loginPage"
+            )
+            .classList
+            .remove("hidden");
+
+            return;
+        }
+
+        if (
+            event ===
+            "SIGNED_IN" &&
+            session
+        ) {
+
+            setTimeout(
+                function() {
+
+                    loadWebsite();
+
+                },
+                0
+            );
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   HỖ TRỢ AN TOÀN HTML
+===================================================== */
+
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+function escapeAttribute(
+    value
+) {
+
+    return escapeHtml(
+        value
+    );
+
+}
+
+
+function escapeJs(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /\\/g,
+        "\\\\"
+    )
+    .replace(
+        /'/g,
+        "\\'"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    );
+
+}
+
+</script>
+
+</body>
+</html>
