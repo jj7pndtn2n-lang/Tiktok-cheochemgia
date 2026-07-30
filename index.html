@@ -1,0 +1,38 @@
+// ==========================================
+// 6. KIỂM TRA ĐÃ BÁO CÁO TRƯỚC ĐÓ CHƯA
+// ==========================================
+
+const {
+    data: existingReport,
+    error: existingReportError
+} = await supabaseClient
+    .from("cross_proof_reviews")
+    .select("id, status, reviewer_id")
+    .eq("attempt_id", attempt.id)
+    .maybeSingle();
+
+if (existingReportError) {
+
+    console.error(
+        "CHECK EXISTING REPORT ERROR:",
+        existingReportError
+    );
+
+    alert(
+        "❌ Không thể kiểm tra báo cáo hiện tại:\n\n" +
+        existingReportError.message
+    );
+
+    return;
+}
+
+if (existingReport) {
+
+    alert(
+        "⚠️ Ảnh bằng chứng này đã được báo cáo rồi.\n\n" +
+        "Trạng thái: " +
+        existingReport.status
+    );
+
+    return;
+}
