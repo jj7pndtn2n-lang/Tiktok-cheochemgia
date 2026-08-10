@@ -1,0 +1,2402 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkEarn - Kiếm tiền online</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: "#2563eb"
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    .glass {
+      background: rgba(255,255,255,.86);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .toast {
+      transform: translate(-50%, -20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: .25s;
+    }
+
+    .toast.show {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+
+    .loading {
+      opacity: .6;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-slate-50 text-slate-900">
+
+<div
+  id="toast"
+  class="toast fixed left-1/2 top-5 z-[999] rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-2xl">
+</div>
+
+
+<!-- =========================
+     AUTH
+========================= -->
+
+<section
+  id="auth"
+  class="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 p-5">
+
+  <div class="glass w-full max-w-md rounded-[30px] p-7 shadow-2xl">
+
+    <div class="mb-7">
+
+      <div
+        class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-2xl font-black text-white shadow-lg">
+        W
+      </div>
+
+      <h1 class="text-3xl font-black">
+        WorkEarn
+      </h1>
+
+      <p class="mt-1 text-sm text-slate-500">
+        Nền tảng nhiệm vụ & phần thưởng
+      </p>
+
+    </div>
+
+
+    <!-- TAB -->
+
+    <div class="mb-6 grid grid-cols-2 rounded-2xl bg-slate-100 p-1">
+
+      <button
+        id="loginTab"
+        onclick="setAuthMode('login')"
+        class="rounded-xl bg-white py-3 text-sm font-bold shadow-sm">
+
+        Đăng nhập
+
+      </button>
+
+      <button
+        id="registerTab"
+        onclick="setAuthMode('register')"
+        class="rounded-xl py-3 text-sm font-bold text-slate-500">
+
+        Đăng ký
+
+      </button>
+
+    </div>
+
+
+    <!-- FORM -->
+
+    <div>
+
+      <label class="text-sm font-semibold">
+        Email
+      </label>
+
+      <input
+        id="email"
+        type="email"
+        autocomplete="email"
+        placeholder="you@example.com"
+        class="mt-2 w-full rounded-2xl border border-slate-200 bg-white p-4 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+
+
+      <label class="mt-4 block text-sm font-semibold">
+        Mật khẩu
+      </label>
+
+      <input
+        id="password"
+        type="password"
+        autocomplete="current-password"
+        placeholder="••••••••"
+        class="mt-2 w-full rounded-2xl border border-slate-200 bg-white p-4 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+
+
+      <input
+        id="fullName"
+        type="text"
+        autocomplete="name"
+        class="mt-4 hidden w-full rounded-2xl border border-slate-200 bg-white p-4 outline-none focus:border-blue-500"
+        placeholder="Họ và tên">
+
+
+      <button
+        id="authBtn"
+        onclick="handleAuth()"
+        class="mt-5 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 p-4 font-black text-white shadow-lg transition active:scale-[.98]">
+
+        Đăng nhập
+
+      </button>
+
+
+      <button
+        id="forgotBtn"
+        onclick="forgotPassword()"
+        class="mt-4 w-full text-sm font-semibold text-blue-600">
+
+        Quên mật khẩu?
+
+      </button>
+
+    </div>
+
+
+    <p class="mt-6 text-center text-xs leading-5 text-slate-400">
+      Tài khoản được bảo mật bằng Supabase Authentication.
+    </p>
+
+  </div>
+
+</section>
+
+
+
+<!-- =========================
+     APP
+========================= -->
+
+<section id="app" class="hidden min-h-screen">
+
+
+  <!-- HEADER -->
+
+  <header
+    class="sticky top-0 z-30 border-b border-slate-200/70 bg-white/90 backdrop-blur">
+
+    <div
+      class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+
+      <button
+        onclick="showPage('home')"
+        class="flex items-center gap-2 font-black">
+
+        <span
+          class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
+          W
+        </span>
+
+        WorkEarn
+
+      </button>
+
+
+      <div class="flex items-center gap-3">
+
+        <div class="hidden text-right sm:block">
+
+          <p class="text-xs text-slate-400">
+            Xin chào
+          </p>
+
+          <p
+            id="helloName"
+            class="font-bold">
+            Bạn
+          </p>
+
+        </div>
+
+
+        <button
+          onclick="showPage('profile')"
+          class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 font-black text-blue-700">
+
+          U
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+
+  <!-- MAIN -->
+
+  <main class="mx-auto max-w-6xl px-4 pb-28 pt-5">
+
+
+    <!-- HOME -->
+
+    <section id="home" class="page active">
+
+      <div
+        class="rounded-[28px] bg-gradient-to-r from-blue-600 to-cyan-500 p-6 text-white shadow-xl">
+
+        <p class="text-sm text-white/75">
+          Số dư khả dụng
+        </p>
+
+        <h2
+          id="balanceHome"
+          class="mt-1 text-4xl font-black">
+          0đ
+        </h2>
+
+        <button
+          onclick="showPage('wallet')"
+          class="mt-5 rounded-2xl bg-white px-5 py-3 text-sm font-black text-blue-700">
+
+          Mở ví tiền
+
+        </button>
+
+      </div>
+
+
+      <div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+
+        <div class="rounded-3xl bg-white p-5 shadow-sm">
+
+          <p class="text-xs text-slate-400">
+            Nhiệm vụ
+          </p>
+
+          <p
+            id="taskCount"
+            class="mt-2 text-2xl font-black">
+            0
+          </p>
+
+        </div>
+
+
+        <div class="rounded-3xl bg-white p-5 shadow-sm">
+
+          <p class="text-xs text-slate-400">
+            Đã hoàn thành
+          </p>
+
+          <p
+            id="completedCount"
+            class="mt-2 text-2xl font-black">
+            0
+          </p>
+
+        </div>
+
+
+        <div class="rounded-3xl bg-white p-5 shadow-sm">
+
+          <p class="text-xs text-slate-400">
+            Thu nhập
+          </p>
+
+          <p
+            id="incomeHome"
+            class="mt-2 text-2xl font-black">
+            0đ
+          </p>
+
+        </div>
+
+
+        <div class="rounded-3xl bg-white p-5 shadow-sm">
+
+          <p class="text-xs text-slate-400">
+            Trạng thái
+          </p>
+
+          <p class="mt-2 text-lg font-black text-emerald-600">
+            Hoạt động
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="mt-5 rounded-[28px] bg-white p-6 shadow-sm">
+
+        <h3 class="text-xl font-black">
+          Sẵn sàng kiếm tiền?
+        </h3>
+
+        <p class="mt-1 text-sm text-slate-500">
+          Hệ thống sẽ chọn một nhiệm vụ phù hợp cho bạn.
+        </p>
+
+        <button
+          onclick="showPage('tasks')"
+          class="mt-5 w-full rounded-2xl bg-slate-900 p-4 font-black text-white">
+
+          NHẬN NHIỆM VỤ
+
+        </button>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- TASKS -->
+
+    <section id="tasks" class="page">
+
+      <div
+        class="rounded-[28px] bg-white p-6 shadow-sm">
+
+        <p class="text-sm font-semibold text-blue-600">
+          NHIỆM VỤ
+        </p>
+
+        <h2 class="mt-1 text-3xl font-black">
+          Nhận nhiệm vụ
+        </h2>
+
+        <p class="mt-2 text-sm text-slate-500">
+          Mỗi lần chỉ hiển thị một nhiệm vụ.
+          Nhiệm vụ đã hoàn thành sẽ không được chọn lại.
+        </p>
+
+
+        <button
+          onclick="getRandomTask()"
+          class="mt-7 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 p-4 font-black text-white shadow-lg">
+
+          🎯 NHẬN NHIỆM VỤ
+
+        </button>
+
+
+        <div
+          id="taskBox"
+          class="mt-5 hidden rounded-3xl border border-slate-200 p-5">
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- WALLET -->
+
+    <section id="wallet" class="page">
+
+      <div
+        class="rounded-[28px] bg-gradient-to-br from-slate-900 to-slate-700 p-6 text-white">
+
+        <p class="text-sm text-white/60">
+          Số dư của bạn
+        </p>
+
+        <h2
+          id="balanceWallet"
+          class="mt-1 text-4xl font-black">
+          0đ
+        </h2>
+
+
+        <button
+          onclick="showPage('withdraw')"
+          class="mt-5 rounded-2xl bg-white px-5 py-3 font-black text-slate-900">
+
+          💸 RÚT TIỀN
+
+        </button>
+
+      </div>
+
+
+      <div
+        class="mt-5 rounded-[28px] bg-white p-6 shadow-sm">
+
+        <h3 class="text-xl font-black">
+          Lịch sử giao dịch
+        </h3>
+
+        <div
+          id="transactionList"
+          class="mt-4 text-sm text-slate-500">
+
+          Chưa có giao dịch.
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- WITHDRAW -->
+
+    <section id="withdraw" class="page">
+
+      <div
+        class="rounded-[28px] bg-white p-6 shadow-sm">
+
+        <h2 class="text-2xl font-black">
+          Rút tiền
+        </h2>
+
+        <p class="mt-2 text-sm text-slate-500">
+          Số dư:
+          <b id="balanceWithdraw">
+            0đ
+          </b>
+        </p>
+
+
+        <select
+          id="withdrawMethod"
+          class="mt-5 w-full rounded-2xl border p-4">
+
+          <option value="bank">
+            Ngân hàng
+          </option>
+
+          <option value="momo">
+            MoMo
+          </option>
+
+          <option value="zalopay">
+            ZaloPay
+          </option>
+
+        </select>
+
+
+        <input
+          id="withdrawBank"
+          class="mt-3 w-full rounded-2xl border p-4"
+          placeholder="Tên ngân hàng / ví">
+
+
+        <input
+          id="withdrawAccount"
+          class="mt-3 w-full rounded-2xl border p-4"
+          placeholder="Số tài khoản / số điện thoại">
+
+
+        <input
+          id="withdrawName"
+          class="mt-3 w-full rounded-2xl border p-4"
+          placeholder="Tên chủ tài khoản">
+
+
+        <input
+          id="withdrawAmount"
+          type="number"
+          min="1000"
+          class="mt-3 w-full rounded-2xl border p-4"
+          placeholder="Số tiền muốn rút">
+
+
+        <div
+          class="mt-5 rounded-2xl bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+
+          <b>⚠️ LƯU Ý</b>
+
+          <br>
+
+          • Sau khi thực hiện lệnh rút tiền vui lòng đợi 30 phút.
+          Nếu lâu hơn dự kiến vui lòng liên hệ Admin.
+
+          <br>
+
+          • Thời gian xử lý dự kiến: 18h hằng ngày.
+
+          <br>
+
+          • Người dùng vẫn có thể gửi lệnh rút tiền ở mọi khung giờ.
+
+        </div>
+
+
+        <button
+          onclick="submitWithdraw()"
+          class="mt-5 w-full rounded-2xl bg-blue-600 p-4 font-black text-white">
+
+          XÁC NHẬN RÚT TIỀN
+
+        </button>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- PROFILE -->
+
+    <section id="profile" class="page">
+
+      <div
+        class="rounded-[28px] bg-white p-6 shadow-sm">
+
+        <div class="flex items-center gap-4">
+
+          <div
+            class="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-2xl font-black text-blue-700">
+
+            U
+
+          </div>
+
+
+          <div>
+
+            <h2
+              id="profileName"
+              class="text-xl font-black">
+
+              Người dùng
+
+            </h2>
+
+            <p
+              id="profileEmail"
+              class="text-sm text-slate-500">
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="mt-6 border-t pt-5">
+
+          <h3 class="font-black">
+            📞 Liên hệ Admin
+          </h3>
+
+
+          <a
+            id="facebookAdmin"
+            href="#"
+            target="_blank"
+            class="mt-3 block rounded-2xl bg-blue-50 p-4 font-bold text-blue-700">
+
+            🔵 Liên hệ Facebook
+
+          </a>
+
+
+          <a
+            id="zaloAdmin"
+            href="#"
+            target="_blank"
+            class="mt-3 block rounded-2xl bg-emerald-50 p-4 font-bold text-emerald-700">
+
+            🟢 Liên hệ Zalo
+
+          </a>
+
+        </div>
+
+
+        <button
+          onclick="logout()"
+          class="mt-6 w-full rounded-2xl border border-red-200 p-4 font-black text-red-600">
+
+          Đăng xuất
+
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+
+  <!-- BOTTOM NAV -->
+
+  <nav
+    class="fixed bottom-0 left-0 right-0 z-30 border-t bg-white/95 backdrop-blur">
+
+    <div class="mx-auto grid max-w-6xl grid-cols-4">
+
+      <button
+        onclick="showPage('home')"
+        class="p-3 text-xs font-bold">
+
+        🏠
+        <br>
+        Trang chủ
+
+      </button>
+
+
+      <button
+        onclick="showPage('tasks')"
+        class="p-3 text-xs font-bold">
+
+        📋
+        <br>
+        Nhiệm vụ
+
+      </button>
+
+
+      <button
+        onclick="showPage('wallet')"
+        class="p-3 text-xs font-bold">
+
+        💰
+        <br>
+        Ví
+
+      </button>
+
+
+      <button
+        onclick="showPage('profile')"
+        class="p-3 text-xs font-bold">
+
+        👤
+        <br>
+        Cá nhân
+
+      </button>
+
+    </div>
+
+  </nav>
+
+</section>
+
+
+
+<script>
+
+/* =========================================================
+   SUPABASE CONFIG
+========================================================= */
+
+const SUPABASE_URL =
+  "https://bnzhspkwkhdymdektmzh.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_B-qTboqeIFCOs5au73gSbw_O-9RzZTo";
+
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+/* =========================================================
+   ADMIN CONTACT
+   Thay 2 link bên dưới bằng link thật của bạn
+========================================================= */
+
+const ADMIN_FACEBOOK =
+  "https://facebook.com/";
+
+const ADMIN_ZALO =
+  "https://zalo.me/";
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let authMode = "login";
+let currentUser = null;
+let currentProfile = null;
+let currentTask = null;
+
+
+/* =========================================================
+   DEMO TASK
+   Tạm dùng để kiểm tra giao diện.
+   Sau khi kết nối bảng tasks sẽ lấy dữ liệu Supabase.
+========================================================= */
+
+const demoTasks = [
+
+  {
+    id: "demo-1",
+    title: "Vượt link rút gọn",
+    platform: "Link",
+    reward: 5000,
+    type: "code",
+    url: "https://example.com",
+    description:
+      "Vượt link rút gọn và lấy mã hoàn thành."
+  },
+
+  {
+    id: "demo-2",
+    title: "Like Facebook",
+    platform: "Facebook",
+    reward: 2000,
+    type: "proof",
+    url: "https://facebook.com/",
+    description:
+      "Nhấn vào link và thực hiện Like Facebook."
+  },
+
+  {
+    id: "demo-3",
+    title: "Comment TikTok",
+    platform: "TikTok",
+    reward: 3000,
+    type: "proof",
+    url: "https://tiktok.com/",
+    description:
+      "Nhấn vào link và thực hiện Comment TikTok."
+  },
+
+  {
+    id: "demo-4",
+    title: "Like YouTube",
+    platform: "YouTube",
+    reward: 3000,
+    type: "proof",
+    url: "https://youtube.com/",
+    description:
+      "Xem video tối thiểu 3 phút sau đó Like."
+  }
+
+];
+
+
+/* =========================================================
+   START
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    document.getElementById(
+      "facebookAdmin"
+    ).href = ADMIN_FACEBOOK;
+
+    document.getElementById(
+      "zaloAdmin"
+    ).href = ADMIN_ZALO;
+
+    checkSession();
+
+  }
+);
+
+
+/* =========================================================
+   CHECK SESSION
+========================================================= */
+
+async function checkSession() {
+
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient.auth.getSession();
+
+
+    if (error) {
+
+      console.error(error);
+
+      return;
+
+    }
+
+
+    if (data?.session?.user) {
+
+      await loadUser(
+        data.session.user
+      );
+
+    }
+
+  }
+
+  catch (err) {
+
+    console.error(err);
+
+  }
+
+}
+
+
+/* =========================================================
+   AUTH MODE
+========================================================= */
+
+function setAuthMode(mode) {
+
+  authMode = mode;
+
+
+  const loginTab =
+    document.getElementById("loginTab");
+
+  const registerTab =
+    document.getElementById("registerTab");
+
+  const fullName =
+    document.getElementById("fullName");
+
+  const authBtn =
+    document.getElementById("authBtn");
+
+  const forgotBtn =
+    document.getElementById("forgotBtn");
+
+
+  if (mode === "login") {
+
+    loginTab.className =
+      "rounded-xl bg-white py-3 text-sm font-bold shadow-sm";
+
+    registerTab.className =
+      "rounded-xl py-3 text-sm font-bold text-slate-500";
+
+    fullName.classList.add("hidden");
+
+    authBtn.textContent =
+      "Đăng nhập";
+
+    forgotBtn.classList.remove("hidden");
+
+  }
+
+  else {
+
+    registerTab.className =
+      "rounded-xl bg-white py-3 text-sm font-bold shadow-sm";
+
+    loginTab.className =
+      "rounded-xl py-3 text-sm font-bold text-slate-500";
+
+    fullName.classList.remove("hidden");
+
+    authBtn.textContent =
+      "Đăng ký";
+
+    forgotBtn.classList.add("hidden");
+
+  }
+
+}
+
+
+/* =========================================================
+   AUTH
+========================================================= */
+
+async function handleAuth() {
+
+  const email =
+    document
+      .getElementById("email")
+      .value
+      .trim()
+      .toLowerCase();
+
+
+  const password =
+    document
+      .getElementById("password")
+      .value;
+
+
+  const fullName =
+    document
+      .getElementById("fullName")
+      .value
+      .trim();
+
+
+  if (!email) {
+
+    toast("Vui lòng nhập email.");
+
+    return;
+
+  }
+
+
+  if (!password) {
+
+    toast("Vui lòng nhập mật khẩu.");
+
+    return;
+
+  }
+
+
+  if (password.length < 6) {
+
+    toast("Mật khẩu phải có ít nhất 6 ký tự.");
+
+    return;
+
+  }
+
+
+  const button =
+    document.getElementById("authBtn");
+
+
+  button.classList.add("loading");
+
+
+  try {
+
+
+    /* =========================
+       REGISTER
+    ========================= */
+
+    if (authMode === "register") {
+
+
+      if (!fullName) {
+
+        toast("Vui lòng nhập họ và tên.");
+
+        return;
+
+      }
+
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient.auth.signUp({
+
+          email,
+
+          password,
+
+          options: {
+
+            data: {
+
+              full_name: fullName
+
+            }
+
+          }
+
+        });
+
+
+      if (error) {
+
+        console.error(error);
+
+        toast(
+          translateSupabaseError(
+            error.message
+          )
+        );
+
+        return;
+
+      }
+
+
+      /*
+       Nếu Supabase bật xác nhận email,
+       user sẽ cần xác nhận email trước khi đăng nhập.
+      */
+
+      if (
+        data.user &&
+        !data.session
+      ) {
+
+        toast(
+          "Đăng ký thành công! Hãy kiểm tra email để xác nhận tài khoản."
+        );
+
+        return;
+
+      }
+
+
+      if (data.user) {
+
+        await ensureProfile(
+          data.user,
+          fullName
+        );
+
+        await loadUser(
+          data.user
+        );
+
+      }
+
+
+      return;
+
+    }
+
+
+    /* =========================
+       LOGIN
+    ========================= */
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient.auth.signInWithPassword({
+
+        email,
+
+        password
+
+      });
+
+
+    if (error) {
+
+      console.error(error);
+
+      toast(
+        translateSupabaseError(
+          error.message
+        )
+      );
+
+      return;
+
+    }
+
+
+    if (data?.user) {
+
+      await loadUser(
+        data.user
+      );
+
+    }
+
+  }
+
+  finally {
+
+    button.classList.remove("loading");
+
+  }
+
+}
+
+
+/* =========================================================
+   ENSURE PROFILE
+========================================================= */
+
+async function ensureProfile(
+  user,
+  fullName
+) {
+
+  try {
+
+    const {
+      data: existing
+    } =
+      await supabaseClient
+        .from("profiles")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+
+    if (existing) {
+
+      return true;
+
+    }
+
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("profiles")
+        .insert({
+
+          id: user.id,
+
+          full_name:
+            fullName ||
+            user.user_metadata?.full_name ||
+            user.email?.split("@")[0],
+
+          balance: 0
+
+        });
+
+
+    if (error) {
+
+      /*
+       Không chặn đăng nhập nếu
+       trigger/database đã tự tạo profile.
+      */
+
+      console.warn(
+        "Profile insert:",
+        error.message
+      );
+
+    }
+
+
+    return true;
+
+  }
+
+  catch (err) {
+
+    console.warn(err);
+
+    return false;
+
+  }
+
+}
+
+
+/* =========================================================
+   LOAD USER
+========================================================= */
+
+async function loadUser(user) {
+
+  if (!user) {
+
+    return;
+
+  }
+
+
+  currentUser = user;
+
+
+  let profile = null;
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+
+
+  if (!error) {
+
+    profile = data;
+
+  }
+
+
+  if (!profile) {
+
+    await ensureProfile(
+      user,
+      user.user_metadata?.full_name
+    );
+
+
+    const result =
+      await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+
+
+    profile =
+      result.data || null;
+
+  }
+
+
+  currentProfile =
+    profile;
+
+
+  document
+    .getElementById("auth")
+    .classList.add("hidden");
+
+
+  document
+    .getElementById("app")
+    .classList.remove("hidden");
+
+
+  const name =
+    profile?.full_name ||
+    user.user_metadata?.full_name ||
+    user.email?.split("@")[0] ||
+    "Bạn";
+
+
+  document.getElementById(
+    "helloName"
+  ).textContent = name;
+
+
+  document.getElementById(
+    "profileName"
+  ).textContent = name;
+
+
+  document.getElementById(
+    "profileEmail"
+  ).textContent =
+    user.email || "";
+
+
+  const balance =
+    Number(profile?.balance || 0);
+
+
+  updateBalance(balance);
+
+
+  await loadStatistics();
+
+}
+
+
+/* =========================================================
+   BALANCE
+========================================================= */
+
+function updateBalance(balance) {
+
+  document.getElementById(
+    "balanceHome"
+  ).textContent =
+    money(balance);
+
+
+  document.getElementById(
+    "balanceWallet"
+  ).textContent =
+    money(balance);
+
+
+  document.getElementById(
+    "balanceWithdraw"
+  ).textContent =
+    money(balance);
+
+
+  document.getElementById(
+    "incomeHome"
+  ).textContent =
+    money(balance);
+
+}
+
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+async function loadStatistics() {
+
+  if (!currentUser) {
+
+    return;
+
+  }
+
+
+  /*
+   Phần này cố gắng lấy dữ liệu
+   nếu bảng task_submissions tồn tại.
+  */
+
+  try {
+
+    const {
+      count,
+      error
+    } =
+      await supabaseClient
+        .from("task_submissions")
+        .select("*", {
+          count: "exact",
+          head: true
+        })
+        .eq(
+          "user_id",
+          currentUser.id
+        )
+        .eq(
+          "status",
+          "approved"
+        );
+
+
+    if (!error) {
+
+      document.getElementById(
+        "completedCount"
+      ).textContent =
+        count || 0;
+
+    }
+
+  }
+
+  catch (err) {
+
+    console.warn(err);
+
+  }
+
+}
+
+
+/* =========================================================
+   TASK
+========================================================= */
+
+async function getRandomTask() {
+
+  const box =
+    document.getElementById("taskBox");
+
+
+  box.classList.remove("hidden");
+
+
+  box.innerHTML = `
+    <div class="py-8 text-center">
+      <div class="text-3xl">⏳</div>
+      <p class="mt-3 font-bold">Đang tìm nhiệm vụ...</p>
+    </div>
+  `;
+
+
+  try {
+
+
+    /*
+     Thử lấy task từ Supabase.
+    */
+
+    let query =
+      supabaseClient
+        .from("tasks")
+        .select("*")
+        .eq("is_active", true);
+
+
+    const {
+      data,
+      error
+    } =
+      await query;
+
+
+    if (
+      !error &&
+      data &&
+      data.length > 0
+    ) {
+
+      /*
+       Lọc nhiệm vụ đã hoàn thành
+       nếu có bảng submissions.
+      */
+
+      let available =
+        [...data];
+
+
+      try {
+
+        const result =
+          await supabaseClient
+            .from("task_submissions")
+            .select("task_id")
+            .eq(
+              "user_id",
+              currentUser.id
+            );
+
+
+        if (
+          !result.error &&
+          result.data
+        ) {
+
+          const completedIds =
+            new Set(
+              result.data.map(
+                x => String(x.task_id)
+              )
+            );
+
+
+          available =
+            available.filter(
+              task =>
+                !completedIds.has(
+                  String(task.id)
+                )
+            );
+
+        }
+
+      }
+
+      catch (e) {
+
+        console.warn(e);
+
+      }
+
+
+      if (available.length > 0) {
+
+        currentTask =
+          available[
+            Math.floor(
+              Math.random() *
+              available.length
+            )
+          ];
+
+
+        renderTask(
+          currentTask
+        );
+
+        return;
+
+      }
+
+    }
+
+
+    /*
+     Nếu chưa có dữ liệu tasks,
+     dùng nhiệm vụ demo để giao diện hoạt động.
+    */
+
+    currentTask =
+      demoTasks[
+        Math.floor(
+          Math.random() *
+          demoTasks.length
+        )
+      ];
+
+
+    renderTask(
+      currentTask
+    );
+
+  }
+
+  catch (err) {
+
+    console.error(err);
+
+    currentTask =
+      demoTasks[
+        Math.floor(
+          Math.random() *
+          demoTasks.length
+        )
+      ];
+
+
+    renderTask(
+      currentTask
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   RENDER TASK
+========================================================= */
+
+function renderTask(task) {
+
+  const box =
+    document.getElementById(
+      "taskBox"
+    );
+
+
+  const title =
+    task.title ||
+    task.name ||
+    "Nhiệm vụ";
+
+
+  const platform =
+    task.platform ||
+    "Nhiệm vụ";
+
+
+  const reward =
+    Number(
+      task.reward ||
+      task.reward_amount ||
+      0
+    );
+
+
+  const description =
+    task.description ||
+    "Thực hiện nhiệm vụ theo hướng dẫn.";
+
+
+  const url =
+    task.url ||
+    task.link ||
+    task.task_url ||
+    "#";
+
+
+  const type =
+    task.type ||
+    task.task_type ||
+    "proof";
+
+
+  let html = `
+
+    <div class="flex items-start justify-between gap-4">
+
+      <div>
+
+        <p class="text-xs font-bold uppercase text-blue-600">
+          ${escapeHtml(platform)}
+        </p>
+
+        <h3 class="mt-1 text-xl font-black">
+          ${escapeHtml(title)}
+        </h3>
+
+      </div>
+
+      <span
+        class="whitespace-nowrap rounded-xl bg-emerald-50 px-3 py-2 text-sm font-black text-emerald-700">
+
+        +${money(reward)}
+
+      </span>
+
+    </div>
+
+
+    <div class="mt-5 rounded-2xl bg-blue-50 p-4">
+
+      <p class="text-sm font-bold text-blue-900">
+        📋 Chi tiết nhiệm vụ
+      </p>
+
+      <p class="mt-2 text-sm leading-6 text-blue-800">
+        ${escapeHtml(description)}
+      </p>
+
+    </div>
+  `;
+
+
+  if (type === "code") {
+
+    html += `
+
+      <div class="mt-4 rounded-2xl bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+
+        <b>⚠️ LƯU Ý</b>
+
+        <br>
+
+        Hãy nhấn vào link này và làm theo những gì website yêu cầu.
+
+        Sau khi hoàn thành bạn sẽ thấy một dòng mã.
+
+        Hãy copy mã và quay lại đây để nhập mã hoàn thành nhiệm vụ.
+
+      </div>
+
+
+      <a
+        href="${escapeAttribute(url)}"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="mt-4 block w-full rounded-2xl bg-slate-900 p-4 text-center font-black text-white">
+
+        🔗 MỞ LINK NHIỆM VỤ
+
+      </a>
+
+
+      <input
+        id="codeInput"
+        class="mt-3 w-full rounded-2xl border border-slate-200 p-4 outline-none focus:border-blue-500"
+        placeholder="Nhập mã hoàn thành">
+
+
+      <button
+        onclick="submitCode()"
+        class="mt-3 w-full rounded-2xl bg-blue-600 p-4 font-black text-white">
+
+        ✅ XÁC NHẬN MÃ
+
+      </button>
+
+    `;
+
+  }
+
+  else {
+
+    html += `
+
+      <div class="mt-4 rounded-2xl bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+
+        <b>⚠️ LƯU Ý</b>
+
+        <br>
+
+        Hãy nhấn vào link trên và thực hiện đúng nhiệm vụ.
+
+        Sau đó chụp ảnh màn hình làm bằng chứng.
+
+        Nếu phát hiện gian lận, Admin có quyền từ chối nhiệm vụ và xử lý tài khoản.
+
+      </div>
+
+
+      <a
+        href="${escapeAttribute(url)}"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="mt-4 block w-full rounded-2xl bg-slate-900 p-4 text-center font-black text-white">
+
+        🔗 MỞ LINK NHIỆM VỤ
+
+      </a>
+
+
+      <div class="mt-4">
+
+        <label class="block text-sm font-bold">
+          📷 Ảnh bằng chứng
+        </label>
+
+        <input
+          id="proofFile"
+          type="file"
+          accept="image/*"
+          class="mt-2 w-full rounded-2xl border border-slate-200 bg-white p-4">
+
+      </div>
+
+
+      <button
+        onclick="submitProof()"
+        class="mt-3 w-full rounded-2xl bg-blue-600 p-4 font-black text-white">
+
+        📤 GỬI BẰNG CHỨNG
+
+      </button>
+
+    `;
+
+  }
+
+
+  box.innerHTML =
+    html;
+
+}
+
+
+/* =========================================================
+   SUBMIT CODE
+========================================================= */
+
+async function submitCode() {
+
+  if (!currentTask) {
+
+    toast("Bạn chưa nhận nhiệm vụ.");
+
+    return;
+
+  }
+
+
+  const input =
+    document.getElementById(
+      "codeInput"
+    );
+
+
+  const code =
+    input?.value.trim();
+
+
+  if (!code) {
+
+    toast("Vui lòng nhập mã.");
+
+    return;
+
+  }
+
+
+  /*
+   Phần kiểm tra mã thật sẽ được
+   đưa vào Database Function để
+   người dùng không thể tự sửa tiền.
+  */
+
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient.rpc(
+        "complete_code_task",
+        {
+          p_task_id: currentTask.id,
+          p_code: code
+        }
+      );
+
+
+    if (!error) {
+
+      toast(
+        "Đã gửi mã. Hệ thống đang xử lý."
+      );
+
+
+      setTimeout(
+        () => getRandomTask(),
+        1200
+      );
+
+
+      return;
+
+    }
+
+
+    console.warn(
+      "RPC complete_code_task:",
+      error.message
+    );
+
+  }
+
+  catch (err) {
+
+    console.warn(err);
+
+  }
+
+
+  toast(
+    "Mã đã được gửi. Chức năng kiểm tra mã cần được kết nối Database."
+  );
+
+}
+
+
+/* =========================================================
+   SUBMIT PROOF
+========================================================= */
+
+async function submitProof() {
+
+  if (!currentTask) {
+
+    toast("Bạn chưa nhận nhiệm vụ.");
+
+    return;
+
+  }
+
+
+  const file =
+    document.getElementById(
+      "proofFile"
+    )?.files?.[0];
+
+
+  if (!file) {
+
+    toast("Vui lòng chọn ảnh bằng chứng.");
+
+    return;
+
+  }
+
+
+  if (!file.type.startsWith("image/")) {
+
+    toast("Chỉ được gửi hình ảnh.");
+
+    return;
+
+  }
+
+
+  if (file.size > 10 * 1024 * 1024) {
+
+    toast("Ảnh không được vượt quá 10MB.");
+
+    return;
+
+  }
+
+
+  toast(
+    "Đã chọn ảnh. Chức năng lưu ảnh sẽ được kết nối Storage."
+  );
+
+}
+
+
+/* =========================================================
+   WITHDRAW
+========================================================= */
+
+async function submitWithdraw() {
+
+  if (!currentUser) {
+
+    toast("Vui lòng đăng nhập.");
+
+    return;
+
+  }
+
+
+  const amount =
+    Number(
+      document.getElementById(
+        "withdrawAmount"
+      ).value
+    );
+
+
+  const balance =
+    Number(
+      currentProfile?.balance || 0
+    );
+
+
+  if (!amount || amount <= 0) {
+
+    toast("Nhập số tiền muốn rút.");
+
+    return;
+
+  }
+
+
+  if (amount > balance) {
+
+    toast("Số dư không đủ.");
+
+    return;
+
+  }
+
+
+  const method =
+    document.getElementById(
+      "withdrawMethod"
+    ).value;
+
+
+  const bank =
+    document.getElementById(
+      "withdrawBank"
+    ).value.trim();
+
+
+  const account =
+    document.getElementById(
+      "withdrawAccount"
+    ).value.trim();
+
+
+  const name =
+    document.getElementById(
+      "withdrawName"
+    ).value.trim();
+
+
+  if (!bank || !account || !name) {
+
+    toast(
+      "Vui lòng nhập đầy đủ thông tin nhận tiền."
+    );
+
+    return;
+
+  }
+
+
+  /*
+   Chưa tự trừ tiền ở frontend.
+   Tiền phải được xử lý bằng
+   RPC/database để tránh gian lận.
+  */
+
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("withdrawals")
+        .insert({
+
+          user_id:
+            currentUser.id,
+
+          amount,
+
+          method,
+
+          account_name:
+            name,
+
+          account_number:
+            account,
+
+          bank_name:
+            bank,
+
+          status:
+            "pending"
+
+        })
+        .select()
+        .single();
+
+
+    if (error) {
+
+      console.warn(error);
+
+      toast(
+        "Chưa thể gửi lệnh rút. Bảng withdrawals chưa được kết nối hoặc RLS chưa cho phép."
+      );
+
+      return;
+
+    }
+
+
+    toast(
+      "Đã gửi lệnh rút tiền thành công."
+    );
+
+
+    document.getElementById(
+      "withdrawAmount"
+    ).value = "";
+
+
+  }
+
+  catch (err) {
+
+    console.error(err);
+
+    toast(
+      "Có lỗi khi gửi lệnh rút."
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   FORGOT PASSWORD
+========================================================= */
+
+async function forgotPassword() {
+
+  const email =
+    document
+      .getElementById("email")
+      .value.trim();
+
+
+  if (!email) {
+
+    toast(
+      "Hãy nhập email trước."
+    );
+
+    return;
+
+  }
+
+
+  const {
+    error
+  } =
+    await supabaseClient.auth
+      .resetPasswordForEmail(
+        email,
+        {
+          redirectTo:
+            window.location.origin
+        }
+      );
+
+
+  if (error) {
+
+    toast(
+      translateSupabaseError(
+        error.message
+      )
+    );
+
+    return;
+
+  }
+
+
+  toast(
+    "Đã gửi email đặt lại mật khẩu."
+  );
+
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+async function logout() {
+
+  await supabaseClient.auth.signOut();
+
+  currentUser = null;
+
+  currentProfile = null;
+
+  location.reload();
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function showPage(id) {
+
+  document
+    .querySelectorAll(".page")
+    .forEach(
+      page =>
+        page.classList.remove(
+          "active"
+        )
+    );
+
+
+  const page =
+    document.getElementById(id);
+
+
+  if (page) {
+
+    page.classList.add(
+      "active"
+    );
+
+  }
+
+
+  window.scrollTo(
+    0,
+    0
+  );
+
+}
+
+
+/* =========================================================
+   MONEY
+========================================================= */
+
+function money(value) {
+
+  return new Intl.NumberFormat(
+    "vi-VN"
+  ).format(
+    Number(value || 0)
+  ) + "đ";
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function toast(message) {
+
+  const t =
+    document.getElementById(
+      "toast"
+    );
+
+
+  t.textContent =
+    message;
+
+
+  t.classList.add(
+    "show"
+  );
+
+
+  clearTimeout(
+    window.__toastTimer
+  );
+
+
+  window.__toastTimer =
+    setTimeout(
+      () =>
+        t.classList.remove(
+          "show"
+        ),
+      3500
+    );
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+function escapeAttribute(value) {
+
+  return escapeHtml(
+    value
+  );
+
+}
+
+
+/* =========================================================
+   SUPABASE ERROR TRANSLATION
+========================================================= */
+
+function translateSupabaseError(
+  message
+) {
+
+  const m =
+    String(message || "")
+      .toLowerCase();
+
+
+  if (
+    m.includes(
+      "user already registered"
+    )
+  ) {
+
+    return "Email này đã được đăng ký.";
+
+  }
+
+
+  if (
+    m.includes(
+      "invalid login credentials"
+    )
+  ) {
+
+    return "Email hoặc mật khẩu không đúng.";
+
+  }
+
+
+  if (
+    m.includes(
+      "email not confirmed"
+    )
+  ) {
+
+    return "Email chưa được xác nhận. Hãy kiểm tra hộp thư.";
+
+  }
+
+
+  if (
+    m.includes(
+      "password should be at least"
+    )
+  ) {
+
+    return "Mật khẩu phải có ít nhất 6 ký tự.";
+
+  }
+
+
+  if (
+    m.includes(
+      "rate limit"
+    )
+  ) {
+
+    return "Bạn thao tác quá nhanh. Vui lòng thử lại sau.";
+
+  }
+
+
+  return message ||
+    "Đã xảy ra lỗi. Vui lòng thử lại.";
+
+}
+
+
+/* =========================================================
+   AUTH STATE CHANGE
+========================================================= */
+
+supabaseClient.auth.onAuthStateChange(
+  async (
+    event,
+    session
+  ) => {
+
+    if (
+      session?.user &&
+      !currentUser
+    ) {
+
+      await loadUser(
+        session.user
+      );
+
+    }
+
+  }
+);
+
+</script>
+
+</body>
+</html>
