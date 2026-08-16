@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Kho bài viết và script Roblox">
+  <title>RUBU SCRIPT</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">RUBU <span>SCRIPT</span></a>
+    <button id="themeBtn" class="icon-btn" aria-label="Đổi giao diện">☀️</button>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>RUBU SCRIPT</h1>
+      <p>Tất cả bài viết Roblox bạn cần tại đây</p>
+    </section>
+
+    <div class="search-wrap">
+      <span>⌕</span>
+      <input id="searchInput" type="search" placeholder="Tìm kiếm bài viết...">
+    </div>
+
+    <div id="categories" class="chips">
+      <button class="chip active" data-category="">Tất cả</button>
+    </div>
+
+    <div id="status" class="status">Đang tải bài viết...</div>
+    <section id="postsGrid" class="posts-grid"></section>
+    <button id="loadMore" class="load-more hidden">Xem thêm</button>
+  </main>
+
+  <footer class="footer">© <span id="year"></span> RUBU SCRIPT</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

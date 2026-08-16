@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - RUBU SCRIPT</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+  <header class="topbar">
+    <a class="brand" href="index.html">RUBU <span>ADMIN</span></a>
+    <div class="admin-actions">
+      <a href="index.html" class="small-btn">Website</a>
+      <button id="logoutBtn" class="small-btn danger">Đăng xuất</button>
+    </div>
+  </header>
+
+  <main class="container admin-container">
+    <section id="loginPanel" class="panel narrow">
+      <h1>Đăng nhập Admin</h1>
+      <p class="muted">Chỉ tài khoản quản trị được phép truy cập.</p>
+      <form id="loginForm">
+        <label>Email</label>
+        <input id="email" type="email" required autocomplete="username">
+        <label>Mật khẩu</label>
+        <input id="password" type="password" required autocomplete="current-password">
+        <button class="primary-btn" type="submit">Đăng nhập</button>
+        <div id="loginError" class="form-error"></div>
+      </form>
+    </section>
+
+    <section id="dashboard" class="hidden">
+      <div class="admin-heading">
+        <div>
+          <h1>Quản lý bài viết</h1>
+          <p class="muted">Thêm, sửa, xóa bài viết trực tiếp trên web.</p>
+        </div>
+        <button id="newPostBtn" class="primary-btn">+ Bài mới</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><b id="totalPosts">0</b><span>Bài viết</span></div>
+        <div class="stat"><b id="totalViews">0</b><span>Lượt xem</span></div>
+      </div>
+
+      <div class="panel">
+        <div class="table-toolbar">
+          <input id="adminSearch" placeholder="Tìm bài viết...">
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Bài viết</th><th>Danh mục</th><th>Lượt xem</th><th>Trạng thái</th><th></th></tr></thead>
+            <tbody id="postsTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <div id="editorModal" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h2 id="editorTitle">Thêm bài viết</h2>
+          <button id="closeModal" class="icon-btn">✕</button>
+        </div>
+
+        <form id="postForm">
+          <input id="postId" type="hidden">
+
+          <label>Tên bài viết *</label>
+          <input id="postTitle" required maxlength="180" placeholder="Ví dụ: Script Blox Fruits">
+
+          <label>Danh mục *</label>
+          <input id="postCategory" required maxlength="80" placeholder="Blox Fruits">
+
+          <label>Slug</label>
+          <input id="postSlug" maxlength="180" placeholder="Tự tạo nếu bỏ trống">
+
+          <label>Ảnh thumbnail</label>
+          <input id="postImage" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+          <small class="muted">Khuyên dùng ảnh JPG/WebP, tối đa 5MB.</small>
+          <div id="imagePreview" class="image-preview"></div>
+
+          <label>Link ngoài (nếu có)</label>
+          <input id="postLink" type="url" placeholder="https://...">
+
+          <label>Mô tả</label>
+          <textarea id="postDescription" rows="4" maxlength="1000" placeholder="Mô tả ngắn..."></textarea>
+
+          <label>Nội dung bài viết</label>
+          <textarea id="postContent" rows="10" placeholder="Nội dung hiển thị trên trang chi tiết..."></textarea>
+
+          <label>Script / Code</label>
+          <textarea id="postCode" rows="12" spellcheck="false" placeholder="Dán code/script tại đây nếu bài viết có code."></textarea>
+
+          <div class="form-row">
+            <label class="switch-row"><input id="postFeatured" type="checkbox"> Nổi bật</label>
+            <label class="switch-row"><input id="postPublished" type="checkbox" checked> Công khai</label>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" id="cancelBtn" class="small-btn">Hủy</button>
+            <button type="submit" class="primary-btn">Lưu bài viết</button>
+          </div>
+          <div id="saveError" class="form-error"></div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
