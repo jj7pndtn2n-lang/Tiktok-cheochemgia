@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Skin Simulator</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#080b12;color:#fff;font-family:Arial,sans-serif}
+.app{max-width:520px;margin:auto;min-height:100vh;background:linear-gradient(180deg,#101522,#070910);padding:18px 16px 30px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.logo{font-weight:900;font-size:22px}.badge{font-size:11px;color:#aeb8ca;background:#171d2b;padding:7px 10px;border-radius:20px}
+.hero{border:1px solid #293246;border-radius:22px;padding:18px;background:radial-gradient(circle at 50% 15%,#263451,#111623 60%);text-align:center}
+.hero .emoji{font-size:100px;line-height:1.1;margin:15px 0}
+.hero h2{margin:5px 0 4px}.muted{color:#9da8ba;font-size:13px}
+select,button{width:100%;height:50px;border:0;border-radius:14px;font-size:15px;font-weight:800;margin-top:12px}
+select{background:#1a2130;color:#fff;padding:0 14px;border:1px solid #303a4d}
+button{background:#ffb000;color:#111;cursor:pointer}
+button.secondary{background:#20283a;color:#fff}
+.section{margin-top:18px}.section h3{margin:0 0 10px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#151b28;border:1px solid #293246;border-radius:16px;padding:14px;cursor:pointer}
+.card.active{border-color:#ffb000;box-shadow:0 0 0 1px #ffb00033}
+.card .skin{font-size:42px}.card b{display:block;margin-top:7px}.card small{color:#8e9ab0}
+.note{margin-top:16px;color:#7f8ba0;font-size:11px;text-align:center;line-height:1.5}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#fff;color:#111;padding:12px 16px;border-radius:12px;display:none;font-weight:700}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">🔥 SKIN SIMULATOR</div>
+    <div class="badge">DEMO</div>
+  </div>
+
+  <div class="hero">
+    <div class="muted">PREVIEW NHÂN VẬT</div>
+    <div class="emoji" id="avatar">🧙‍♂️</div>
+    <h2 id="name">Crimson Warrior</h2>
+    <div class="muted" id="status">Skin đang được mô phỏng</div>
+  </div>
+
+  <div class="section">
+    <h3>Chọn nhân vật</h3>
+    <select id="character">
+      <option value="🧙‍♂️">Warrior</option>
+      <option value="🧑‍🚀">Cyber</option>
+      <option value="🥷">Ninja</option>
+      <option value="🦸">Hero</option>
+    </select>
+  </div>
+
+  <div class="section">
+    <h3>Chọn skin</h3>
+    <div class="cards" id="cards"></div>
+  </div>
+
+  <button id="preview">✨ XEM THỬ SKIN</button>
+  <button class="secondary" id="unlock">🔓 MỞ KHÓA THÊM SKIN</button>
+
+  <div class="note">
+    Đây là bản mô phỏng độc lập để xem trước skin trong ứng dụng.
+    Không thay đổi APK, file hoặc dữ liệu của Free Fire.
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const skins=[
+ {name:"Crimson Warrior",icon:"🔥",desc:"Chiến binh đỏ"},
+ {name:"Cyber Phantom",icon:"🤖",desc:"Phong cách cyber"},
+ {name:"Golden Dragon",icon:"🐉",desc:"Rồng vàng"},
+ {name:"Neon Hunter",icon:"⚡",desc:"Neon phát sáng"},
+ {name:"Shadow Reaper",icon:"☠️",desc:"Bóng tối"}
+];
+let selected=0;
+const cards=document.getElementById("cards");
+function render(){
+ cards.innerHTML=skins.map((s,i)=>`<div class="card ${i===selected?'active':''}" onclick="selectSkin(${i})">
+ <div class="skin">${s.icon}</div><b>${s.name}</b><small>${s.desc}</small></div>`).join("");
+}
+function selectSkin(i){selected=i;render();document.getElementById("name").textContent=skins[i].name}
+document.getElementById("character").onchange=e=>document.getElementById("avatar").textContent=e.target.value;
+document.getElementById("preview").onclick=()=>{
+ const s=skins[selected];
+ document.getElementById("name").textContent=s.name;
+ document.getElementById("status").textContent="✨ Đang xem thử • Mô phỏng";
+ toast("Đã mở preview: "+s.name);
+};
+document.getElementById("unlock").onclick=()=>{
+ toast("Bước tiếp theo có thể tích hợp link mở khóa.");
+};
+function toast(t){const x=document.getElementById("toast");x.textContent=t;x.style.display="block";setTimeout(()=>x.style.display="none",2200)}
+render();
+</script>
+</body>
+</html>
