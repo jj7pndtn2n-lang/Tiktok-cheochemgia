@@ -1,0 +1,2096 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Skin Tools Admin</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  min-height:100%;
+  background:#080d15;
+  color:#fff;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  padding:18px;
+}
+
+main{
+  max-width:900px;
+  margin:auto;
+}
+
+h1{
+  margin:0;
+  font-size:22px;
+}
+
+h2{
+  margin:0;
+}
+
+h3{
+  margin:0 0 12px;
+  font-size:16px;
+}
+
+.subtitle{
+  color:#8e9bad;
+  font-size:12px;
+  margin-top:5px;
+}
+
+.card{
+  background:#111a27;
+  border:1px solid #2b394d;
+  border-radius:16px;
+  padding:16px;
+  margin:12px 0;
+  box-shadow:0 8px 24px #0005;
+}
+
+label{
+  display:block;
+  margin:11px 0 6px;
+  color:#cbd5e1;
+  font-size:12px;
+  font-weight:800;
+}
+
+input,
+select,
+button{
+  width:100%;
+  min-height:44px;
+  border-radius:10px;
+  border:1px solid #334056;
+  background:#0b121d;
+  color:#fff;
+  padding:0 11px;
+  font-size:14px;
+}
+
+input[type="file"]{
+  padding:9px;
+}
+
+button{
+  background:#16c6d5;
+  border:0;
+  font-weight:900;
+  cursor:pointer;
+}
+
+button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+.danger{
+  background:#d34a5c;
+}
+
+.secondary{
+  background:#273247;
+}
+
+.green{
+  background:#18a866;
+}
+
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+@media(max-width:650px){
+  .row{
+    grid-template-columns:1fr;
+  }
+}
+
+.preview{
+  width:100%;
+  max-height:220px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-top:9px;
+  display:none;
+  border:1px solid #334056;
+}
+
+.notice{
+  background:#0d2230;
+  border:1px solid #15556a;
+  color:#b9edf5;
+  border-radius:11px;
+  padding:11px;
+  margin-top:10px;
+  font-size:12px;
+  line-height:1.5;
+}
+
+.msg{
+  min-height:20px;
+  margin:10px 0 0;
+  color:#9feaf2;
+  font-size:12px;
+  line-height:1.5;
+}
+
+.muted{
+  color:#93a0b3;
+  font-size:12px;
+  line-height:1.5;
+}
+
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+#login{
+  max-width:430px;
+  margin:60px auto;
+}
+
+#panel{
+  display:none;
+}
+
+.item{
+  border-top:1px solid #293447;
+  padding:11px 0;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.item:first-child{
+  border-top:0;
+}
+
+.thumb{
+  width:70px;
+  height:52px;
+  object-fit:cover;
+  border-radius:8px;
+  background:#283245;
+  flex:none;
+}
+
+.item-info{
+  flex:1;
+  min-width:0;
+}
+
+.item-name{
+  font-size:13px;
+  font-weight:800;
+  word-break:break-word;
+}
+
+.item-meta{
+  font-size:11px;
+  color:#8e9bad;
+  margin-top:4px;
+}
+
+.item-actions{
+  width:85px;
+  flex:none;
+}
+
+.item-actions button{
+  min-height:36px;
+  font-size:11px;
+  padding:0 5px;
+}
+
+.stat-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+
+@media(max-width:600px){
+  .stat-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+.stat{
+  background:#0b121d;
+  border:1px solid #2b394d;
+  border-radius:12px;
+  padding:12px;
+  font-size:12px;
+  color:#9aa8ba;
+}
+
+.stat b{
+  display:block;
+  color:#fff;
+  font-size:22px;
+  margin-top:5px;
+}
+
+hr{
+  border:0;
+  border-top:1px solid #293447;
+  margin:18px 0;
+}
+
+.user-info{
+  color:#8e9bad;
+  font-size:11px;
+  margin-top:5px;
+  word-break:break-all;
+}
+
+.loading{
+  text-align:center;
+  padding:20px;
+  color:#8e9bad;
+}
+
+.success-box{
+  display:none;
+  background:#0b261a;
+  border:1px solid #187a4a;
+  color:#8ff0b6;
+  padding:10px;
+  border-radius:10px;
+  font-size:12px;
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<main>
+
+<!-- =====================================================
+     LOGIN ADMIN
+===================================================== -->
+
+<section id="login" class="card">
+
+  <h1>🔐 SKIN TOOLS ADMIN</h1>
+
+  <p class="subtitle">
+    Đăng nhập bằng tài khoản Admin đã được cấp quyền.
+  </p>
+
+  <label>Email admin</label>
+
+  <input
+    id="email"
+    type="email"
+    placeholder="admin@example.com"
+    autocomplete="email"
+  >
+
+  <label>Mật khẩu</label>
+
+  <input
+    id="pass"
+    type="password"
+    placeholder="Mật khẩu"
+    autocomplete="current-password"
+  >
+
+  <button onclick="login()">
+    ĐĂNG NHẬP
+  </button>
+
+  <p id="loginMsg" class="msg"></p>
+
+</section>
+
+
+<!-- =====================================================
+     ADMIN PANEL
+===================================================== -->
+
+<section id="panel">
+
+  <div class="topbar">
+
+    <div>
+
+      <h1>⚙️ SKIN TOOLS ADMIN</h1>
+
+      <div class="subtitle">
+        Quản lý Skin • Súng • KEY • Link hệ thống
+      </div>
+
+      <div
+        id="adminEmail"
+        class="user-info"
+      ></div>
+
+    </div>
+
+    <button
+      class="danger"
+      style="width:110px"
+      onclick="logout()"
+    >
+      ĐĂNG XUẤT
+    </button>
+
+  </div>
+
+
+  <!-- =====================================================
+       CẤU HÌNH LINK
+  ===================================================== -->
+
+  <div class="card">
+
+    <h3>🔗 CẤU HÌNH HỆ THỐNG</h3>
+
+    <p class="muted">
+      Các link dưới đây được lưu trực tiếp trong bảng
+      <b>app_settings</b>.
+    </p>
+
+
+    <label>
+      🔑 Link rút gọn lấy KEY
+    </label>
+
+    <input
+      id="getKeyUrl"
+      type="url"
+      placeholder="https://link4m.org/..."
+    >
+
+    <button
+      id="saveKeyBtn"
+      onclick="saveSetting('get_key_url','getKeyUrl')"
+    >
+      💾 LƯU LINK LẤY KEY
+    </button>
+
+
+    <label>
+      🚀 Link đích sau khi KEY hợp lệ
+    </label>
+
+    <input
+      id="destinationUrl"
+      type="url"
+      placeholder="https://example.com/taiapp.html"
+    >
+
+    <button
+      id="saveDestinationBtn"
+      onclick="saveSetting('destination_url','destinationUrl')"
+    >
+      💾 LƯU LINK ĐÍCH
+    </button>
+
+
+    <div class="notice">
+
+      ℹ️ <b>Link rút gọn lấy KEY</b>:
+
+      Đây là link người dùng sẽ mở khi bấm
+      <b>🔑 Chưa có key? Lấy key tại đây</b>.
+
+      <br><br>
+
+      <b>Link đích</b>:
+
+      Đây là nơi người dùng được chuyển tới
+      sau khi KEY được Supabase xác thực thành công.
+
+      <br><br>
+
+      Hệ thống này chỉ lưu URL.
+      Không cần nhập API Link4M nếu bạn chỉ muốn
+      người dùng mở link rút gọn để lấy KEY.
+
+    </div>
+
+    <p id="settingsMsg" class="msg"></p>
+
+  </div>
+
+
+  <!-- =====================================================
+       THÊM SKIN
+  ===================================================== -->
+
+  <div class="card">
+
+    <h3>
+      ➕ THÊM SKIN / SÚNG / NỘI DUNG
+    </h3>
+
+
+    <div class="row">
+
+      <div>
+
+        <label>Loại nội dung</label>
+
+        <select id="type">
+
+          <option value="gun">
+            Skin Súng
+          </option>
+
+          <option value="character">
+            Skin Nhân Vật
+          </option>
+
+          <option value="other">
+            Skin Khác
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div>
+
+        <label>Game</label>
+
+        <select id="game">
+
+          <option value="FF">
+            Free Fire
+          </option>
+
+          <option value="FFMAX">
+            Free Fire Max
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <label>Tên nội dung</label>
+
+    <input
+      id="name"
+      placeholder="Ví dụ: MP40 Quỷ Dạ Xoa"
+      maxlength="100"
+    >
+
+
+    <label>
+      Icon nếu không có ảnh
+    </label>
+
+    <input
+      id="icon"
+      placeholder="🔥"
+      maxlength="20"
+    >
+
+
+    <div class="row">
+
+      <div>
+
+        <label>Nhãn</label>
+
+        <input
+          id="badge"
+          value="NEW"
+          placeholder="NEW"
+          maxlength="30"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>Thứ tự hiển thị</label>
+
+        <input
+          id="sort"
+          type="number"
+          value="0"
+        >
+
+      </div>
+
+    </div>
+
+
+    <label>
+      Link chi tiết
+      <span class="muted">(không bắt buộc)</span>
+    </label>
+
+    <input
+      id="detail"
+      type="url"
+      placeholder="https://..."
+    >
+
+
+    <label>
+      Ảnh Skin / Súng
+    </label>
+
+    <input
+      id="image"
+      type="file"
+      accept="image/png,image/jpeg,image/webp"
+      onchange="previewFile()"
+    >
+
+
+    <img
+      id="preview"
+      class="preview"
+      alt="Preview"
+    >
+
+
+    <button
+      id="addItemBtn"
+      onclick="addItem()"
+    >
+      🚀 ĐĂNG NỘI DUNG
+    </button>
+
+    <p id="contentMsg" class="msg"></p>
+
+  </div>
+
+
+  <!-- =====================================================
+       TẠO KEY
+  ===================================================== -->
+
+  <div class="card">
+
+    <h3>
+      🔑 TẠO KEY
+    </h3>
+
+
+    <div class="row">
+
+      <div>
+
+        <label>KEY</label>
+
+        <input
+          id="key"
+          placeholder="KEY-XXXX-XXXX"
+          maxlength="100"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label>
+          Số lượt sử dụng tối đa
+        </label>
+
+        <input
+          id="uses"
+          type="number"
+          value="1"
+          min="1"
+          step="1"
+        >
+
+      </div>
+
+    </div>
+
+
+    <button
+      id="createKeyBtn"
+      class="green"
+      onclick="createKey()"
+    >
+      🔑 TẠO KEY
+    </button>
+
+    <p id="keyMsg" class="msg"></p>
+
+  </div>
+
+
+  <!-- =====================================================
+       THỐNG KÊ
+  ===================================================== -->
+
+  <div class="card">
+
+    <h3>
+      📊 THỐNG KÊ
+    </h3>
+
+
+    <div class="stat-grid">
+
+      <div class="stat">
+        Tổng nội dung
+        <b id="statTotal">0</b>
+      </div>
+
+
+      <div class="stat">
+        Đang hiện
+        <b id="statActive">0</b>
+      </div>
+
+
+      <div class="stat">
+        Đang ẩn
+        <b id="statHidden">0</b>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       DANH SÁCH NỘI DUNG
+  ===================================================== -->
+
+  <div class="card">
+
+    <div class="topbar">
+
+      <h3>
+        📦 NỘI DUNG HIỆN CÓ
+      </h3>
+
+      <button
+        style="width:90px"
+        onclick="loadList()"
+      >
+        ↻ TẢI LẠI
+      </button>
+
+    </div>
+
+
+    <div
+      id="list"
+      class="muted"
+    >
+      Đang tải...
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+
+
+<script>
+
+/* =====================================================
+   SUPABASE
+===================================================== */
+
+const cfg = window.SUPABASE_CONFIG || {};
+
+let sb = null;
+let currentUser = null;
+
+
+/* =====================================================
+   KHỞI TẠO SUPABASE
+===================================================== */
+
+function initSupabase(){
+
+  if(
+    !window.supabase ||
+    !cfg.url ||
+    !cfg.anonKey
+  ){
+
+    message(
+      "loginMsg",
+      "❌ Thiếu SUPABASE URL hoặc ANON KEY trong supabase-config.js."
+    );
+
+    return false;
+
+  }
+
+  try{
+
+    sb = window.supabase.createClient(
+      cfg.url,
+      cfg.anonKey
+    );
+
+    return true;
+
+  }catch(error){
+
+    console.error(error);
+
+    message(
+      "loginMsg",
+      "❌ Không thể kết nối Supabase."
+    );
+
+    return false;
+
+  }
+
+}
+
+
+/* =====================================================
+   HELPER
+===================================================== */
+
+function getValue(id){
+
+  const el =
+    document.getElementById(id);
+
+  if(!el) return "";
+
+  return el.value.trim();
+
+}
+
+
+function message(id,text,success=false){
+
+  const el =
+    document.getElementById(id);
+
+  if(!el) return;
+
+  el.textContent = text;
+
+  el.style.color =
+    success
+    ? "#8ff0b6"
+    : "#9feaf2";
+
+}
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+async function login(){
+
+  if(!sb){
+
+    message(
+      "loginMsg",
+      "❌ Supabase chưa được cấu hình."
+    );
+
+    return;
+
+  }
+
+
+  const email =
+    getValue("email");
+
+  const password =
+    document.getElementById("pass").value;
+
+
+  if(!email || !password){
+
+    message(
+      "loginMsg",
+      "❌ Vui lòng nhập email và mật khẩu."
+    );
+
+    return;
+
+  }
+
+
+  message(
+    "loginMsg",
+    "Đang đăng nhập..."
+  );
+
+
+  const result =
+    await sb.auth.signInWithPassword({
+
+      email:email,
+
+      password:password
+
+    });
+
+
+  if(result.error){
+
+    console.error(result.error);
+
+    message(
+      "loginMsg",
+      "❌ " + result.error.message
+    );
+
+    return;
+
+  }
+
+
+  await checkAdmin();
+
+}
+
+
+/* =====================================================
+   KIỂM TRA ADMIN
+===================================================== */
+
+async function checkAdmin(){
+
+  if(!sb) return;
+
+
+  const result =
+    await sb.auth.getUser();
+
+
+  if(result.error){
+
+    console.error(result.error);
+
+    document
+      .getElementById("login")
+      .style.display="block";
+
+    document
+      .getElementById("panel")
+      .style.display="none";
+
+    return;
+
+  }
+
+
+  const user =
+    result.data?.user;
+
+
+  if(!user){
+
+    document
+      .getElementById("login")
+      .style.display="block";
+
+    document
+      .getElementById("panel")
+      .style.display="none";
+
+    return;
+
+  }
+
+
+  /* ===================================================
+     KIỂM TRA USER CÓ TRONG BẢNG ADMINS
+  =================================================== */
+
+  const adminResult =
+    await sb
+      .from("admins")
+      .select("user_id")
+      .eq("user_id",user.id)
+      .maybeSingle();
+
+
+  if(adminResult.error){
+
+    console.error(adminResult.error);
+
+    message(
+      "loginMsg",
+      "❌ Không kiểm tra được quyền Admin: "
+      + adminResult.error.message
+    );
+
+    return;
+
+  }
+
+
+  if(!adminResult.data){
+
+    await sb.auth.signOut();
+
+    message(
+      "loginMsg",
+      "❌ Tài khoản này chưa được cấp quyền Admin."
+    );
+
+    return;
+
+  }
+
+
+  currentUser = user;
+
+
+  document
+    .getElementById("adminEmail")
+    .textContent =
+    "👤 " + (user.email || "Admin");
+
+
+  document
+    .getElementById("login")
+    .style.display="none";
+
+
+  document
+    .getElementById("panel")
+    .style.display="block";
+
+
+  await loadSettings();
+
+  await loadList();
+
+}
+
+
+/* =====================================================
+   LOAD CẤU HÌNH LINK
+=====================================================
+
+   QUAN TRỌNG:
+
+   Dùng đúng 2 key mà index.html đang đọc:
+
+   get_key_url
+   destination_url
+
+   Không dùng:
+
+   getKeyUrl
+   destinationUrl
+===================================================== */
+
+async function loadSettings(){
+
+  if(!sb) return;
+
+
+  message(
+    "settingsMsg",
+    "Đang tải cấu hình..."
+  );
+
+
+  const result =
+    await sb
+      .from("app_settings")
+      .select("key,value,updated_at")
+      .in(
+        "key",
+        [
+          "get_key_url",
+          "destination_url"
+        ]
+      );
+
+
+  if(result.error){
+
+    console.error(result.error);
+
+    message(
+      "settingsMsg",
+      "❌ Không tải được cấu hình: "
+      + result.error.message
+    );
+
+    return;
+
+  }
+
+
+  const rows =
+    result.data || [];
+
+
+  /* Reset trước khi đọc */
+
+  document
+    .getElementById("getKeyUrl")
+    .value="";
+
+
+  document
+    .getElementById("destinationUrl")
+    .value="";
+
+
+  rows.forEach(row=>{
+
+    if(row.key === "get_key_url"){
+
+      document
+        .getElementById("getKeyUrl")
+        .value =
+        row.value || "";
+
+    }
+
+
+    if(row.key === "destination_url"){
+
+      document
+        .getElementById("destinationUrl")
+        .value =
+        row.value || "";
+
+    }
+
+  });
+
+
+  message(
+    "settingsMsg",
+    "✅ Đã tải cấu hình.",
+    true
+  );
+
+}
+
+
+/* =====================================================
+   LƯU LINK
+===================================================== */
+
+async function saveSetting(key,inputId){
+
+  if(!sb){
+
+    message(
+      "settingsMsg",
+      "❌ Supabase chưa được cấu hình."
+    );
+
+    return;
+
+  }
+
+
+  const value =
+    getValue(inputId);
+
+
+  if(!value){
+
+    message(
+      "settingsMsg",
+      "❌ Link không được để trống."
+    );
+
+    return;
+
+  }
+
+
+  /* Kiểm tra URL */
+
+  try{
+
+    const url =
+      new URL(value);
+
+    if(
+      url.protocol !== "http:" &&
+      url.protocol !== "https:"
+    ){
+
+      throw new Error("Invalid protocol");
+
+    }
+
+  }catch(e){
+
+    message(
+      "settingsMsg",
+      "❌ URL không hợp lệ."
+    );
+
+    return;
+
+  }
+
+
+  const button =
+    key === "get_key_url"
+    ? document.getElementById("saveKeyBtn")
+    : document.getElementById("saveDestinationBtn");
+
+
+  if(button){
+
+    button.disabled=true;
+
+  }
+
+
+  message(
+    "settingsMsg",
+    "Đang lưu..."
+  );
+
+
+  try{
+
+    const result =
+      await sb
+        .from("app_settings")
+        .upsert(
+          {
+            key:key,
+            value:value,
+            updated_at:
+              new Date().toISOString()
+          },
+          {
+            onConflict:"key"
+          }
+        );
+
+
+    if(result.error){
+
+      console.error(result.error);
+
+      message(
+        "settingsMsg",
+        "❌ " + result.error.message
+      );
+
+      return;
+
+    }
+
+
+    message(
+      "settingsMsg",
+      "✅ Đã lưu thành công.",
+      true
+    );
+
+
+  }finally{
+
+    if(button){
+
+      button.disabled=false;
+
+    }
+
+  }
+
+}
+
+
+/* =====================================================
+   PREVIEW ẢNH
+===================================================== */
+
+let previewObjectUrl = null;
+
+
+function previewFile(){
+
+  const file =
+    document
+      .getElementById("image")
+      .files[0];
+
+
+  const preview =
+    document
+      .getElementById("preview");
+
+
+  if(previewObjectUrl){
+
+    URL.revokeObjectURL(
+      previewObjectUrl
+    );
+
+    previewObjectUrl=null;
+
+  }
+
+
+  if(!file){
+
+    preview.style.display="none";
+
+    preview.removeAttribute("src");
+
+    return;
+
+  }
+
+
+  if(![
+    "image/png",
+    "image/jpeg",
+    "image/webp"
+  ].includes(file.type)){
+
+    message(
+      "contentMsg",
+      "❌ Chỉ cho phép PNG, JPG hoặc WEBP."
+    );
+
+    document
+      .getElementById("image")
+      .value="";
+
+    preview.style.display="none";
+
+    return;
+
+  }
+
+
+  previewObjectUrl =
+    URL.createObjectURL(file);
+
+
+  preview.src =
+    previewObjectUrl;
+
+  preview.style.display="block";
+
+}
+
+
+/* =====================================================
+   THÊM SKIN / NỘI DUNG
+===================================================== */
+
+async function addItem(){
+
+  if(!sb){
+
+    message(
+      "contentMsg",
+      "❌ Supabase chưa được cấu hình."
+    );
+
+    return;
+
+  }
+
+
+  const file =
+    document
+      .getElementById("image")
+      .files[0];
+
+
+  const type =
+    getValue("type");
+
+
+  const game =
+    getValue("game");
+
+
+  const name =
+    getValue("name");
+
+
+  const icon =
+    getValue("icon") || "✨";
+
+
+  const badge =
+    getValue("badge") || "NEW";
+
+
+  const detail =
+    getValue("detail") || null;
+
+
+  const sort =
+    Number(
+      getValue("sort")
+    ) || 0;
+
+
+  if(!name){
+
+    message(
+      "contentMsg",
+      "❌ Vui lòng nhập tên nội dung."
+    );
+
+    return;
+
+  }
+
+
+  if(detail){
+
+    try{
+
+      const detailUrl =
+        new URL(detail);
+
+      if(
+        detailUrl.protocol !== "http:" &&
+        detailUrl.protocol !== "https:"
+      ){
+
+        throw new Error();
+
+      }
+
+    }catch(e){
+
+      message(
+        "contentMsg",
+        "❌ Link chi tiết không hợp lệ."
+      );
+
+      return;
+
+    }
+
+  }
+
+
+  const button =
+    document.getElementById("addItemBtn");
+
+
+  button.disabled=true;
+
+
+  message(
+    "contentMsg",
+    "Đang đăng nội dung..."
+  );
+
+
+  try{
+
+    let image_url = "";
+
+
+    /* =================================================
+       UPLOAD ẢNH
+    ================================================= */
+
+    if(file){
+
+      const maxSize =
+        5 * 1024 * 1024;
+
+
+      if(file.size > maxSize){
+
+        message(
+          "contentMsg",
+          "❌ Ảnh tối đa 5MB."
+        );
+
+        return;
+
+      }
+
+
+      const safeName =
+        file.name.replace(
+          /[^a-zA-Z0-9._-]/g,
+          "_"
+        );
+
+
+      const uuid =
+        crypto.randomUUID
+        ? crypto.randomUUID()
+        : Date.now().toString();
+
+
+      const path =
+        uuid
+        + "-"
+        + safeName;
+
+
+      const upload =
+        await sb
+          .storage
+          .from("catalog-images")
+          .upload(
+            path,
+            file,
+            {
+              upsert:false,
+              contentType:file.type
+            }
+          );
+
+
+      if(upload.error){
+
+        console.error(
+          upload.error
+        );
+
+        message(
+          "contentMsg",
+          "❌ Upload ảnh thất bại: "
+          + upload.error.message
+        );
+
+        return;
+
+      }
+
+
+      image_url =
+        sb
+          .storage
+          .from("catalog-images")
+          .getPublicUrl(path)
+          .data
+          .publicUrl;
+
+    }
+
+
+    /* =================================================
+       INSERT DATABASE
+    ================================================= */
+
+    const result =
+      await sb
+        .from("catalog_items")
+        .insert({
+
+          type:type,
+
+          game:game,
+
+          name:name,
+
+          icon:icon,
+
+          image_url:image_url,
+
+          badge:badge,
+
+          detail_url:detail,
+
+          sort_order:sort,
+
+          active:true
+
+        });
+
+
+    if(result.error){
+
+      console.error(result.error);
+
+      message(
+        "contentMsg",
+        "❌ " + result.error.message
+      );
+
+      return;
+
+    }
+
+
+    message(
+      "contentMsg",
+      "✅ Đã đăng nội dung thành công.",
+      true
+    );
+
+
+    /* =================================================
+       RESET
+    ================================================= */
+
+    document
+      .getElementById("name")
+      .value="";
+
+
+    document
+      .getElementById("icon")
+      .value="";
+
+
+    document
+      .getElementById("detail")
+      .value="";
+
+
+    document
+      .getElementById("image")
+      .value="";
+
+
+    document
+      .getElementById("preview")
+      .style.display="none";
+
+
+    if(previewObjectUrl){
+
+      URL.revokeObjectURL(
+        previewObjectUrl
+      );
+
+      previewObjectUrl=null;
+
+    }
+
+
+    await loadList();
+
+  }catch(error){
+
+    console.error(error);
+
+    message(
+      "contentMsg",
+      "❌ Có lỗi xảy ra: "
+      + error.message
+    );
+
+  }finally{
+
+    button.disabled=false;
+
+  }
+
+}
+
+
+/* =====================================================
+   TẠO KEY
+===================================================== */
+
+async function createKey(){
+
+  if(!sb){
+
+    message(
+      "keyMsg",
+      "❌ Supabase chưa được cấu hình."
+    );
+
+    return;
+
+  }
+
+
+  const key =
+    getValue("key");
+
+
+  const uses =
+    Number(
+      getValue("uses")
+    ) || 1;
+
+
+  if(!key){
+
+    message(
+      "keyMsg",
+      "❌ Vui lòng nhập KEY."
+    );
+
+    return;
+
+  }
+
+
+  if(uses < 1 || !Number.isInteger(uses)){
+
+    message(
+      "keyMsg",
+      "❌ Số lượt sử dụng phải là số nguyên từ 1."
+    );
+
+    return;
+
+  }
+
+
+  const button =
+    document
+      .getElementById("createKeyBtn");
+
+
+  button.disabled=true;
+
+
+  message(
+    "keyMsg",
+    "Đang tạo KEY..."
+  );
+
+
+  try{
+
+    const result =
+      await sb.rpc(
+        "admin_create_key",
+        {
+          p_key:key,
+          p_max_uses:uses
+        }
+      );
+
+
+    if(result.error){
+
+      console.error(result.error);
+
+      message(
+        "keyMsg",
+        "❌ " + result.error.message
+      );
+
+      return;
+
+    }
+
+
+    if(result.data?.ok){
+
+      message(
+        "keyMsg",
+        "✅ Đã tạo KEY: " + key,
+        true
+      );
+
+
+      document
+        .getElementById("key")
+        .value="";
+
+
+    }else{
+
+      message(
+        "keyMsg",
+        "❌ "
+        + (
+          result.data?.message
+          || "Không tạo được KEY."
+        )
+      );
+
+    }
+
+  }catch(error){
+
+    console.error(error);
+
+    message(
+      "keyMsg",
+      "❌ " + error.message
+    );
+
+  }finally{
+
+    button.disabled=false;
+
+  }
+
+}
+
+
+/* =====================================================
+   LOAD DANH SÁCH
+===================================================== */
+
+async function loadList(){
+
+  if(!sb) return;
+
+
+  const list =
+    document
+      .getElementById("list");
+
+
+  list.innerHTML =
+    '<div class="loading">Đang tải...</div>';
+
+
+  const result =
+    await sb
+      .from("catalog_items")
+      .select(
+        "id,name,type,game,image_url,badge,active,sort_order,icon"
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
+
+  if(result.error){
+
+    console.error(result.error);
+
+    list.textContent =
+      "❌ " + result.error.message;
+
+    return;
+
+  }
+
+
+  const data =
+    result.data || [];
+
+
+  /* =================================================
+     THỐNG KÊ
+  ================================================= */
+
+  document
+    .getElementById("statTotal")
+    .textContent =
+    data.length;
+
+
+  document
+    .getElementById("statActive")
+    .textContent =
+    data.filter(
+      x=>x.active
+    ).length;
+
+
+  document
+    .getElementById("statHidden")
+    .textContent =
+    data.filter(
+      x=>!x.active
+    ).length;
+
+
+  if(!data.length){
+
+    list.innerHTML =
+      '<div class="muted">Chưa có nội dung nào.</div>';
+
+    return;
+
+  }
+
+
+  list.innerHTML =
+    data.map(item=>{
+
+      const image =
+        item.image_url
+        ?
+        `
+        <img
+          class="thumb"
+          src="${escapeHtml(item.image_url)}"
+          alt=""
+          onerror="this.style.display='none'"
+        >
+        `
+        :
+        `
+        <div
+          class="thumb"
+          style="
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:25px
+          "
+        >
+          ${escapeHtml(item.icon || "🎮")}
+        </div>
+        `;
+
+
+      return `
+
+        <div class="item">
+
+          ${image}
+
+          <div class="item-info">
+
+            <div class="item-name">
+              ${escapeHtml(item.name)}
+            </div>
+
+            <div class="item-meta">
+
+              ${escapeHtml(item.type)}
+              •
+              ${escapeHtml(item.game)}
+              •
+              ${escapeHtml(item.badge || "")}
+              •
+              ${
+                item.active
+                ? "Đang hiện"
+                : "Đang ẩn"
+              }
+
+            </div>
+
+          </div>
+
+
+          <div class="item-actions">
+
+            <button
+              class="${
+                item.active
+                ? "danger"
+                : "green"
+              }"
+              onclick="
+                toggleItem(
+                  '${escapeAttr(item.id)}',
+                  ${Boolean(item.active)}
+                )
+              "
+            >
+
+              ${
+                item.active
+                ? "ẨN"
+                : "HIỆN"
+              }
+
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* =====================================================
+   ẨN / HIỆN NỘI DUNG
+===================================================== */
+
+async function toggleItem(id,active){
+
+  if(!sb){
+
+    message(
+      "contentMsg",
+      "❌ Supabase chưa được cấu hình."
+    );
+
+    return;
+
+  }
+
+
+  const result =
+    await sb
+      .from("catalog_items")
+      .update({
+        active:!active
+      })
+      .eq(
+        "id",
+        id
+      );
+
+
+  if(result.error){
+
+    console.error(result.error);
+
+    message(
+      "contentMsg",
+      "❌ "
+      + result.error.message
+    );
+
+    return;
+
+  }
+
+
+  message(
+    "contentMsg",
+    active
+    ? "✅ Đã ẩn nội dung."
+    : "✅ Đã hiện nội dung.",
+    true
+  );
+
+
+  await loadList();
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+async function logout(){
+
+  if(sb){
+
+    await sb.auth.signOut();
+
+  }
+
+  location.reload();
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHtml(value){
+
+  return String(
+    value ?? ""
+  ).replace(
+    /[&<>"']/g,
+    function(char){
+
+      return {
+
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+
+      }[char];
+
+    }
+  );
+
+}
+
+
+function escapeAttr(value){
+
+  return String(
+    value ?? ""
+  )
+  .replace(
+    /\\/g,
+    "\\\\"
+  )
+  .replace(
+    /'/g,
+    "\\'"
+  );
+
+}
+
+
+/* =====================================================
+   KHỞI ĐỘNG
+===================================================== */
+
+async function init(){
+
+  if(!initSupabase()){
+
+    return;
+
+  }
+
+
+  try{
+
+    await checkAdmin();
+
+  }catch(error){
+
+    console.error(error);
+
+    message(
+      "loginMsg",
+      "❌ Không thể khởi tạo Admin: "
+      + error.message
+    );
+
+  }
+
+}
+
+
+init();
+
+</script>
+
+</body>
+</html>
