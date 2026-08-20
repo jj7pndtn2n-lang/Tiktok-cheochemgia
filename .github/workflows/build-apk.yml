@@ -25,6 +25,9 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Check Gradle tasks
+        run: gradle :app:tasks --all
+
       - name: Build APK
         run: gradle :app:assembleDebug
 
