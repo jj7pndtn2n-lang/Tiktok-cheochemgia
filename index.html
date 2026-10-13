@@ -31,8 +31,8 @@ button{border:0;border-radius:13px;padding:14px 16px;font-weight:950;letter-spac
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* Điền URL và anon key trong dashboard Supabase rồi deploy lại. */
-const SUPABASE_URL = "PASTE_SUPABASE_URL_HERE";
-const SUPABASE_ANON_KEY = "PASTE_SUPABASE_ANON_KEY_HERE";
+const SUPABASE_URL = "https://uvszvhltakpqpuysqjik.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_OQc1lgtEZlqgPi059Cyg9w_CeHzGY0P";
 const WORLD={w:2600,h:1800}; let sb=null, me=null, active=false, dead=false, lastSend=0,lastFetch=0,players=[],knives=[],score=0,power=1;
 const canvas=document.querySelector('#game'),ctx=canvas.getContext('2d');let cw=innerWidth,ch=innerHeight,dpr=1,camera={x:0,y:0};
 const $=s=>document.querySelector(s);const statusEl=$('#status');
